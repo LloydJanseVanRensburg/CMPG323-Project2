@@ -1,0 +1,16 @@
+
+    Server Error: 1634673427997
+    error: Error: Please provide all email and password
+    message: Please provide all email and password
+    stack trace: Error: Please provide all email and password
+    at new BaseException (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\modules\BaseException.js:22:28)
+    at AuthControllers.register (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:74:29)
+    at Layer.handle [as handle_request] (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\route.js:137:13)
+    at Route.dispatch (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\route.js:112:3)
+    at Layer.handle [as handle_request] (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\index.js:281:22
+    at Function.process_params (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\index.js:335:12)
+    at next (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\index.js:275:10)
+    at Function.handle (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\index.js:174:3)
+    

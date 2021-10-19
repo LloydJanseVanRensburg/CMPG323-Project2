@@ -4,6 +4,7 @@ dotenv.config();
 import express from 'express';
 import morgan from 'morgan';
 import apiErrorHandler from './middleware/apiErrorHandler';
+import initParse from './utils/initParse';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import groupRoutes from './routes/groupRoutes';
@@ -23,5 +24,7 @@ app.use(apiErrorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
+  initParse();
+
   console.log(`Server runnning on port ${PORT}`);
 });

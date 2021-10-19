@@ -1,0 +1,16 @@
+
+    Server Error: 1634673532168
+    error: Error: Please provide all email and password
+    message: Please provide all email and password
+    stack trace: Error: Please provide all email and password
+    at new BaseException (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\modules\BaseException.js:22:28)
+    at C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:54:56
+    at step (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:33:23)
+    at Object.next (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:14:53)
+    at C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:8:71
+    at new Promise (<anonymous>)
+    at __awaiter (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:4:12)
+    at AuthControllers.login (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:47:16)
+    at Layer.handle [as handle_request] (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\express\lib\router\route.js:137:13)
+    
