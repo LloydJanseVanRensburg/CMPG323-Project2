@@ -1,5 +1,7 @@
 import Parse from 'parse/node';
 import jwt from 'jsonwebtoken';
+import { BaseException } from '../modules/BaseException';
+import { nextTick } from 'process';
 
 interface RegisterObject {
   username: string;
@@ -42,8 +44,15 @@ export class AuthenticationService {
           },
         });
       } catch (error: any) {
-        console.trace(error.code, error.message);
-        reject(new Error(error));
+        console.log(error.message);
+        if (error.message === 'jwt expires') {
+          reject(new BaseException('Token has expired', 401));
+        } else if (error.message === 'Invalid username/password.') {
+          console.log('fired');
+          reject(new BaseException('Invalid email or password', 400));
+        } else {
+          reject(error);
+        }
       }
     });
   }
@@ -79,8 +88,7 @@ export class AuthenticationService {
           },
         });
       } catch (error: any) {
-        console.trace(error.code, error.message);
-        reject(new Error(error));
+        reject(error);
       }
     });
   }

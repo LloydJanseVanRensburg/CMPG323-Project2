@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 import apiErrorHandler from './middleware/apiErrorHandler';
 import initParse from './utils/initParse';
 import authRoutes from './routes/authRoutes';
@@ -12,6 +13,7 @@ import postRoutes from './routes/postRoutes';
 
 const app = express();
 
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 

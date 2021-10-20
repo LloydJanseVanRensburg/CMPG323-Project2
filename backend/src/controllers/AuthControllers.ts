@@ -5,9 +5,44 @@ import {
   validateRegisterAuthBody,
 } from '../utils/functions';
 import { AuthenticationService } from '../services/AuthenticationService';
+import Parse from 'parse/node';
 
 export class AuthControllers {
-  // TODO:   Error in the Try is not loggin correct chec that out!
+  static async logout(req: Request, res: Response, next: NextFunction) {
+    // Handle session delete
+  }
+
+  static async loggedInUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      let userId = req.headers['userId'];
+      let sessionToken = req.headers['sessionToken'];
+
+      const query = new Parse.Query(Parse.User);
+      query.equalTo('objectId', userId);
+
+      const user = await query.first({ useMasterKey: true });
+
+      if (!user) {
+        return next(new BaseException('User not found', 404));
+      }
+
+      res.status(200).json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            username: user.get('username'),
+            email: user.get('email'),
+            sessionToken: sessionToken,
+            profilePrictureUrl: user.get('profilePictureUrl'),
+          },
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async login(req: Request, res: Response, next: NextFunction) {
     try {
       if (!validateLoginAuthBody(req.body)) {
@@ -23,11 +58,10 @@ export class AuthControllers {
 
       res.status(200).json(data);
     } catch (error: any) {
-      next(new BaseException(error.message, 500, error.code));
+      next(new BaseException(error.message, error.statusCode));
     }
   }
 
-  // TODO:   Error in the Try is not loggin correct chec that out!
   static async register(req: Request, res: Response, next: NextFunction) {
     try {
       if (!validateRegisterAuthBody(req.body)) {
@@ -53,9 +87,7 @@ export class AuthControllers {
 
       res.status(200).json(data);
     } catch (error: any) {
-      console.trace(error.message);
-      console.trace(error.code);
-      next(new BaseException(error.message, 500, error.code));
+      next(new BaseException(error.message, error.statusCode));
     }
   }
 }

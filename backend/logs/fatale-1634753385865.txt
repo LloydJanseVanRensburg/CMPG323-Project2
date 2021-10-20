@@ -1,0 +1,12 @@
+
+    Server Error: 1634753385865
+    error: Error: ParseError: 101 Invalid username/password.
+    message: ParseError: 101 Invalid username/password.
+    stack trace: Error: ParseError: 101 Invalid username/password.
+    at new BaseException (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\modules\BaseException.js:22:28)
+    at C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:65:30
+    at step (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:33:23)
+    at Object.throw (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:14:53)
+    at rejected (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\dist\controllers\AuthControllers.js:6:65)
+    at processTicksAndRejections (node:internal/process/task_queues:93:5)
+    

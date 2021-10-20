@@ -35,18 +35,67 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthControllers = void 0;
 var BaseException_1 = require("../modules/BaseException");
 var functions_1 = require("../utils/functions");
 var AuthenticationService_1 = require("../services/AuthenticationService");
+var node_1 = __importDefault(require("parse/node"));
 var AuthControllers = /** @class */ (function () {
     function AuthControllers() {
     }
-    // TODO:   Error in the Try is not loggin correct chec that out!
+    AuthControllers.logout = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
+    };
+    AuthControllers.loggedInUser = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            var userId, sessionToken, query, user, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        userId = req.headers['userId'];
+                        sessionToken = req.headers['sessionToken'];
+                        query = new node_1.default.Query(node_1.default.User);
+                        query.equalTo('objectId', userId);
+                        return [4 /*yield*/, query.first({ useMasterKey: true })];
+                    case 1:
+                        user = _a.sent();
+                        if (!user) {
+                            return [2 /*return*/, next(new BaseException_1.BaseException('User not found', 404))];
+                        }
+                        res.status(200).json({
+                            success: true,
+                            data: {
+                                user: {
+                                    id: user.id,
+                                    username: user.get('username'),
+                                    email: user.get('email'),
+                                    sessionToken: sessionToken,
+                                    profilePrictureUrl: user.get('profilePictureUrl'),
+                                },
+                            },
+                        });
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _a.sent();
+                        next(error_1);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     AuthControllers.login = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, password, data, error_1;
+            var _a, email, password, data, error_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -61,18 +110,17 @@ var AuthControllers = /** @class */ (function () {
                         res.status(200).json(data);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_1 = _b.sent();
-                        next(new BaseException_1.BaseException(error_1.message, 500, error_1.code));
+                        error_2 = _b.sent();
+                        next(new BaseException_1.BaseException(error_2.message, error_2.statusCode));
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    // TODO:   Error in the Try is not loggin correct chec that out!
     AuthControllers.register = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, username, password, profilePrictureUrl, registerData, data, error_2;
+            var _a, email, username, password, profilePrictureUrl, registerData, data, error_3;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -94,10 +142,8 @@ var AuthControllers = /** @class */ (function () {
                         res.status(200).json(data);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_2 = _b.sent();
-                        console.trace(error_2.message);
-                        console.trace(error_2.code);
-                        next(new BaseException_1.BaseException(error_2.message, 500, error_2.code));
+                        error_3 = _b.sent();
+                        next(new BaseException_1.BaseException(error_3.message, error_3.statusCode));
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }

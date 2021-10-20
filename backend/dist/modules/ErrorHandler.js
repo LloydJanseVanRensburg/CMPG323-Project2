@@ -5,12 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErrorHandler = void 0;
 var fs_1 = __importDefault(require("fs"));
-var BaseException_1 = require("./BaseException");
 var ErrorHandler = /** @class */ (function () {
     function ErrorHandler() {
     }
     ErrorHandler.isTrustedError = function (error) {
-        if (error instanceof BaseException_1.BaseException) {
+        if (error.isOperational) {
             return true;
         }
         else {

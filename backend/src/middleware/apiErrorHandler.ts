@@ -9,8 +9,8 @@ function apiErrorHandler(
 ) {
   if (ErrorHandler.isTrustedError(error)) {
     res.status(error.statusCode).json({
-      msg: error.message,
-      code: error.errorCode ?? '',
+      success: false,
+      message: error.message,
     });
 
     return;

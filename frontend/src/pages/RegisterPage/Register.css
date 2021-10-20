@@ -1,0 +1,22 @@
+.form {
+  width: 90%;
+  max-width: 500px;
+  margin: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form ion-item::part(native) {
+  --padding-start: 0px;
+}
+
+.form ion-button {
+  margin-top: 1.5em;
+}
+
+.toast_cancel_btn {
+  background-color: #000;
+  color: #000;
+  fill: #000;
+}

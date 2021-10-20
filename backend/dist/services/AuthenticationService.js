@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthenticationService = void 0;
 var node_1 = __importDefault(require("parse/node"));
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var BaseException_1 = require("../modules/BaseException");
 var AuthenticationService = /** @class */ (function () {
     function AuthenticationService() {
     }
@@ -79,8 +80,17 @@ var AuthenticationService = /** @class */ (function () {
                         return [3 /*break*/, 3];
                     case 2:
                         error_1 = _a.sent();
-                        console.trace(error_1.code, error_1.message);
-                        reject(new Error(error_1));
+                        console.log(error_1.message);
+                        if (error_1.message === 'jwt expires') {
+                            reject(new BaseException_1.BaseException('Token has expired', 401));
+                        }
+                        else if (error_1.message === 'Invalid username/password.') {
+                            console.log('fired');
+                            reject(new BaseException_1.BaseException('Invalid email or password', 400));
+                        }
+                        else {
+                            reject(error_1);
+                        }
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -122,8 +132,7 @@ var AuthenticationService = /** @class */ (function () {
                         return [3 /*break*/, 3];
                     case 2:
                         error_2 = _a.sent();
-                        console.trace(error_2.code, error_2.message);
-                        reject(new Error(error_2));
+                        reject(error_2);
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }

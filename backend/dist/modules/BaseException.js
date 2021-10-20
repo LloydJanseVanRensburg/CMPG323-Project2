@@ -20,6 +20,7 @@ var BaseException = /** @class */ (function (_super) {
     __extends(BaseException, _super);
     function BaseException(message, statusCode, errorCode) {
         var _this = _super.call(this, message) || this;
+        _this.isOperational = true;
         _this.statusCode = statusCode;
         _this.errorCode = errorCode;
         return _this;

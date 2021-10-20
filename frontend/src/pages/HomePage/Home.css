@@ -1,0 +1,21 @@
+.home__accountPfp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.home__accountPfp > ion-avatar {
+  height: 120px;
+  width: 120px;
+}
+
+.home__accountInfo {
+  text-align: center;
+}
+
+.home__accountLogout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

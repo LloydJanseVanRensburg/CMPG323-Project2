@@ -5,7 +5,7 @@ import { BaseException } from './BaseException';
 
 export class ErrorHandler {
   static isTrustedError(error: any): boolean {
-    if (error instanceof BaseException) {
+    if (error.isOperational) {
       return true;
     } else {
       return false;
