@@ -10,12 +10,25 @@ import Parse from 'parse/node';
 export class AuthControllers {
   static async logout(req: Request, res: Response, next: NextFunction) {
     // Handle session delete
+    let sessionToken = req.headers['sessionToken'] as string;
+
+    try {
+      Parse.User.enableUnsafeCurrentUser();
+      await Parse.User.become(sessionToken);
+      await Parse.User.logOut();
+
+      res.status(200).json({
+        success: true,
+        message: 'Logged out',
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 
   static async loggedInUser(req: Request, res: Response, next: NextFunction) {
     try {
       let userId = req.headers['userId'];
-      let sessionToken = req.headers['sessionToken'];
 
       const query = new Parse.Query(Parse.User);
       query.equalTo('objectId', userId);
@@ -33,7 +46,6 @@ export class AuthControllers {
             id: user.id,
             username: user.get('username'),
             email: user.get('email'),
-            sessionToken: sessionToken,
             profilePrictureUrl: user.get('profilePictureUrl'),
           },
         },

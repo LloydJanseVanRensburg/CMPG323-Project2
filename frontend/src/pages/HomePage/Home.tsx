@@ -1,5 +1,5 @@
 // Core React
-import { useContext } from 'react';
+import { useState, useContext } from 'react';
 
 // Ionic Components
 import {
@@ -14,6 +14,7 @@ import {
   IonListHeader,
   IonMenuButton,
   IonPage,
+  IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
@@ -23,19 +24,23 @@ import { AuthContext } from '../../context/authContext/authContext';
 
 // Styling & Assets
 import './Home.css';
-// import axios from 'axios';
-// import { config } from '../../constants/config';
+
+// Axois & Modules
+import axios from 'axios';
+import { config } from '../../constants/config';
 
 const Home: React.FC = () => {
-  const { setLoggedIn, setLoading } = useContext(AuthContext);
+  const { setLoggedIn } = useContext(AuthContext);
+
+  const [loading, setLoading] = useState(false);
 
   const logoutHandler = async () => {
-    // let token = localStorage.getItem('authToken');
+    let token = localStorage.getItem('authToken');
     try {
       setLoading(true);
-      // await axios.get(`${config.apiURL}/auth/logout`, {
-      //   headers: { Authentication: `Bearer ${token}` },
-      // });
+      await axios.get(`${config.apiURL}/auth/logout`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       localStorage.removeItem('authToken');
       setLoading(false);
       setLoggedIn(false);
@@ -68,9 +73,11 @@ const Home: React.FC = () => {
         </div>
 
         <div className="home__accountLogout">
-          <IonButton color="primary">Edit</IonButton>
-          <IonButton color="danger" onClick={logoutHandler}>
-            Logout
+          <IonButton disabled={loading} color="primary">
+            Edit
+          </IonButton>
+          <IonButton disabled={loading} color="danger" onClick={logoutHandler}>
+            {loading ? <IonSpinner name="circles" /> : 'Logout'}
           </IonButton>
         </div>
 

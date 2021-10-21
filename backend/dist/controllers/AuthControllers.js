@@ -49,20 +49,43 @@ var AuthControllers = /** @class */ (function () {
     }
     AuthControllers.logout = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
+            var sessionToken, error_1;
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        sessionToken = req.headers['sessionToken'];
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 4, , 5]);
+                        node_1.default.User.enableUnsafeCurrentUser();
+                        return [4 /*yield*/, node_1.default.User.become(sessionToken)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, node_1.default.User.logOut()];
+                    case 3:
+                        _a.sent();
+                        res.status(200).json({
+                            success: true,
+                            message: 'Logged out',
+                        });
+                        return [3 /*break*/, 5];
+                    case 4:
+                        error_1 = _a.sent();
+                        next(error_1);
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
+                }
             });
         });
     };
     AuthControllers.loggedInUser = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId, sessionToken, query, user, error_1;
+            var userId, query, user, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         userId = req.headers['userId'];
-                        sessionToken = req.headers['sessionToken'];
                         query = new node_1.default.Query(node_1.default.User);
                         query.equalTo('objectId', userId);
                         return [4 /*yield*/, query.first({ useMasterKey: true })];
@@ -78,15 +101,14 @@ var AuthControllers = /** @class */ (function () {
                                     id: user.id,
                                     username: user.get('username'),
                                     email: user.get('email'),
-                                    sessionToken: sessionToken,
                                     profilePrictureUrl: user.get('profilePictureUrl'),
                                 },
                             },
                         });
                         return [3 /*break*/, 3];
                     case 2:
-                        error_1 = _a.sent();
-                        next(error_1);
+                        error_2 = _a.sent();
+                        next(error_2);
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -95,7 +117,7 @@ var AuthControllers = /** @class */ (function () {
     };
     AuthControllers.login = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, password, data, error_2;
+            var _a, email, password, data, error_3;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -110,8 +132,8 @@ var AuthControllers = /** @class */ (function () {
                         res.status(200).json(data);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_2 = _b.sent();
-                        next(new BaseException_1.BaseException(error_2.message, error_2.statusCode));
+                        error_3 = _b.sent();
+                        next(new BaseException_1.BaseException(error_3.message, error_3.statusCode));
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -120,7 +142,7 @@ var AuthControllers = /** @class */ (function () {
     };
     AuthControllers.register = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, username, password, profilePrictureUrl, registerData, data, error_3;
+            var _a, email, username, password, profilePrictureUrl, registerData, data, error_4;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -142,8 +164,8 @@ var AuthControllers = /** @class */ (function () {
                         res.status(200).json(data);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_3 = _b.sent();
-                        next(new BaseException_1.BaseException(error_3.message, error_3.statusCode));
+                        error_4 = _b.sent();
+                        next(new BaseException_1.BaseException(error_4.message, error_4.statusCode));
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
