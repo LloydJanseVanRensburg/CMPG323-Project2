@@ -78,9 +78,6 @@ var AuthMiddleware = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         error_1 = _a.sent();
-                        if (error_1.message === 'jwt malformed') {
-                            return [2 /*return*/, next(new BaseException_1.BaseException('Access denied invalid token', 401))];
-                        }
                         next(error_1);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];

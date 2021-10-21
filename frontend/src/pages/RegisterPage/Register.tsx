@@ -38,7 +38,7 @@ import './Register.css';
 import { Redirect } from 'react-router';
 
 const Register = () => {
-  const { loggedIn, setLoggedIn } = useContext(AuthContext);
+  const { loggedIn } = useContext(AuthContext);
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -83,10 +83,11 @@ const Register = () => {
       );
 
       if (result.data.success) {
-        setLoading(false);
+        console.log(result.data.token);
         localStorage.setItem('authToken', result.data.data.token);
-        setLoggedIn(true);
       }
+
+      setLoading(false);
     } catch (error: any) {
       console.trace(error);
       if (error.response && error.response.data) {
