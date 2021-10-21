@@ -37,18 +37,16 @@ const App: React.FC = () => {
           setLoading(false);
         })
         .catch(() => {
+          localStorage.removeItem('authToken');
           setLoggedIn(false);
           setLoading(false);
         });
     }
   }, []);
 
-  if (loading) {
-    return <IonLoading isOpen />;
-  }
-
   return (
     <IonApp>
+      <IonLoading isOpen={loading} />
       <AuthContext.Provider
         value={{
           loggedIn,

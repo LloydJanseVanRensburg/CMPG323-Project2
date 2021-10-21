@@ -1,5 +1,5 @@
 // Core React
-import { useContext } from 'react';
+import { useState, useContext } from 'react';
 
 // Ionic Components
 import {
@@ -14,33 +14,46 @@ import {
   IonListHeader,
   IonMenuButton,
   IonPage,
+  IonSpinner,
   IonTitle,
+  IonToast,
   IonToolbar,
 } from '@ionic/react';
+
+// Ionic Icons
+import { closeOutline } from 'ionicons/icons';
 
 // Context
 import { AuthContext } from '../../context/authContext/authContext';
 
 // Styling & Assets
 import './Home.css';
-// import axios from 'axios';
-// import { config } from '../../constants/config';
+
+// Axios & Modules
+import axios from 'axios';
+import { config } from '../../constants/config';
 
 const Home: React.FC = () => {
-  const { setLoggedIn, setLoading } = useContext(AuthContext);
+  const { setLoggedIn } = useContext(AuthContext);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const logoutHandler = async () => {
-    // let token = localStorage.getItem('authToken');
+    let token = localStorage.getItem('authToken');
     try {
       setLoading(true);
-      // await axios.get(`${config.apiURL}/auth/logout`, {
-      //   headers: { Authentication: `Bearer ${token}` },
-      // });
+      await axios.get(`${config.apiURL}/auth/logout`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       localStorage.removeItem('authToken');
       setLoading(false);
       setLoggedIn(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        setError(error.response.data.message);
+      }
+      setLoading(false);
     }
   };
 
@@ -55,6 +68,24 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
+        <IonToast
+          isOpen={error !== ''}
+          onDidDismiss={() => setError('')}
+          message={error}
+          color="danger"
+          duration={5000}
+          buttons={[
+            {
+              side: 'end',
+              role: 'cancel',
+              icon: closeOutline,
+              handler: () => {
+                setError('');
+              },
+            },
+          ]}
+        />
+
         <div className="home__accountPfp">
           <IonAvatar slot="start">
             <img src="./avatar-finn.png" alt="" />
@@ -68,9 +99,11 @@ const Home: React.FC = () => {
         </div>
 
         <div className="home__accountLogout">
-          <IonButton color="primary">Edit</IonButton>
-          <IonButton color="danger" onClick={logoutHandler}>
-            Logout
+          <IonButton disabled={loading} color="primary">
+            Edit
+          </IonButton>
+          <IonButton disabled={loading} color="danger" onClick={logoutHandler}>
+            {loading ? <IonSpinner name="circles" /> : 'Logout'}
           </IonButton>
         </div>
 
