@@ -1,8 +1,0 @@
-
-    Server Error: 1634765396535
-    error: ParseError: 209 Invalid session token
-    message: Invalid session token
-    stack trace: Error: Invalid session token
-    at handleError (C:\Users\User-Pc\Desktop\CMPG323_Project2\backend\node_modules\parse\lib\node\RESTController.js:426:17)
-    at processTicksAndRejections (node:internal/process/task_queues:93:5)
-    
