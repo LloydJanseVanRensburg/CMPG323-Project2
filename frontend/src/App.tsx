@@ -38,6 +38,7 @@ const App: React.FC = () => {
         })
         .catch(() => {
           setLoggedIn(false);
+          localStorage.removeItem('authToken');
           setLoading(false);
         });
     }

@@ -46,6 +46,7 @@ const Home: React.FC = () => {
       setLoggedIn(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 

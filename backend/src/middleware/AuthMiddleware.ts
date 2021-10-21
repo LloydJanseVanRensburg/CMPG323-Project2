@@ -35,7 +35,11 @@ export class AuthMiddleware {
       req.headers['sessionToken'] = decoded.sessionToken;
 
       next();
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'jwt malformed') {
+        return next(new BaseException('Access denied invalid token', 401));
+      }
+
       next(error);
     }
   }
