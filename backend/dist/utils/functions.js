@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.objectLength = exports.isDefined = exports.isString = exports.validateRegisterAuthBody = exports.validateLoginAuthBody = void 0;
+exports.objectLength = exports.isDefined = exports.isString = exports.validateCreateGroupBody = exports.validateRegisterAuthBody = exports.validateLoginAuthBody = void 0;
 var validateLoginAuthBody = function (body) {
     return (exports.isDefined(body) &&
         exports.objectLength(body) > 0 &&
@@ -21,6 +21,15 @@ var validateRegisterAuthBody = function (body) {
         exports.isString(body.password));
 };
 exports.validateRegisterAuthBody = validateRegisterAuthBody;
+var validateCreateGroupBody = function (body) {
+    return (exports.isDefined(body) &&
+        exports.objectLength(body) > 0 &&
+        exports.isDefined(body.title) &&
+        exports.isString(body.title) &&
+        exports.isDefined(body.description) &&
+        exports.isString(body.description));
+};
+exports.validateCreateGroupBody = validateCreateGroupBody;
 var isString = function (string) {
     return typeof string === 'string' || string instanceof String;
 };

@@ -10,6 +10,20 @@ import Parse from 'parse/node';
 export class AuthControllers {
   static async logout(req: Request, res: Response, next: NextFunction) {
     // Handle session delete
+    const sessionToken = req.headers['sessionToken'] as string;
+
+    try {
+      Parse.User.enableUnsafeCurrentUser();
+      await Parse.User.become(sessionToken);
+      await Parse.User.logOut();
+
+      res.status(200).json({
+        success: true,
+        message: 'User logged out',
+      });
+    } catch (error: any) {
+      next(error);
+    }
   }
 
   static async loggedInUser(req: Request, res: Response, next: NextFunction) {
