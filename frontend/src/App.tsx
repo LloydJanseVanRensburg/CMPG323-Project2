@@ -44,7 +44,7 @@ const App: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <IonLoading isOpen translucent={true} />;
+    return <IonLoading isOpen />;
   }
 
   return (
@@ -52,7 +52,6 @@ const App: React.FC = () => {
       <AuthContext.Provider
         value={{
           loggedIn,
-          loading,
           setLoggedIn,
           setLoading,
         }}
