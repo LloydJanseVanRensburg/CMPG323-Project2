@@ -4,20 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.upload = exports.getFileStream = exports.uploadFile = void 0;
-var fs_1 = __importDefault(require("fs"));
 var multer_1 = __importDefault(require("multer"));
 var aws_sdk_1 = __importDefault(require("aws-sdk"));
+// Adding AWS IAM credentials created for this app
 var s3 = new aws_sdk_1.default.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY,
     region: process.env.AWS_REGION,
 });
-function uploadFile(file) {
-    var fileStream = fs_1.default.createReadStream(file.path);
+// Uploading File to AWS S3
+function uploadFile(fileBuffer, filename) {
     var uploadParams = {
         Bucket: process.env.AWS_S3_BUCKET,
-        Body: fileStream,
-        Key: file.filename,
+        Body: fileBuffer,
+        Key: filename,
     };
     return s3.upload(uploadParams).promise();
 }
