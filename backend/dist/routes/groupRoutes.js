@@ -28,4 +28,8 @@ router.put('/:groupId', AuthMiddleware_1.AuthMiddleware.auth, FileUploadMiddlewa
 // @desc - DELETE remove group by id
 // @access Private
 router.delete('/:groupId', AuthMiddleware_1.AuthMiddleware.auth, GroupControllers_1.GroupControllers.deleteById);
+// @route /api/v1/groups/:groupId/invite
+// @desc - DELETE remove group by id
+// @access Private
+router.post('/:groupId/invite', AuthMiddleware_1.AuthMiddleware.auth, GroupControllers_1.GroupControllers.inviteToGroup);
 exports.default = router;

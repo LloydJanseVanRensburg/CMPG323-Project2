@@ -46,6 +46,7 @@ var BaseException_1 = require("../modules/BaseException");
 var FileUploadMiddleware_1 = require("../middleware/FileUploadMiddleware");
 var __1 = require("..");
 var ImageProcessing_1 = require("../services/ImageProcessing");
+var EmailingServices_1 = require("../services/EmailingServices");
 var GroupControllers = /** @class */ (function () {
     function GroupControllers() {
     }
@@ -326,15 +327,33 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.inviteToGroup = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
+            var emailInviteList, message_1;
+            var _this = this;
             return __generator(this, function (_a) {
                 try {
-                    // Get list of emails to invite from req.body
+                    emailInviteList = req.body.emailInviteList;
+                    message_1 = "\n        <h1>Your Special Invite</h1>\n      ";
+                    emailInviteList.forEach(function (email) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            EmailingServices_1.EmailServices.sendEmail({
+                                to: email,
+                                subject: 'You have been invited to join a group',
+                                text: message_1,
+                            });
+                            return [2 /*return*/];
+                        });
+                    }); });
+                    res.status(200).json({
+                        success: true,
+                        message: 'Invites sent',
+                    });
                     // Check if these emails are actuall users of the app
                     // Check that they are not part of group already
                     // Send out emails to email list
                 }
                 catch (error) {
                     // handle error
+                    next(error);
                 }
                 return [2 /*return*/];
             });
@@ -350,6 +369,7 @@ var GroupControllers = /** @class */ (function () {
                 }
                 catch (error) {
                     // handle error
+                    next(error);
                 }
                 return [2 /*return*/];
             });
@@ -366,6 +386,7 @@ var GroupControllers = /** @class */ (function () {
                 }
                 catch (error) {
                     // handle error
+                    next(error);
                 }
                 return [2 /*return*/];
             });
