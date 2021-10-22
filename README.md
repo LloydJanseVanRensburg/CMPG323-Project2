@@ -1,25 +1,14 @@
 # CMPG323 PROJECT 2
 
-## TECHNOLOGIES
+#### TECHNOLOGIES
 
-### FRONTEND
-* React
-* Ionic
-
-### BACKEND
-* NodeJS
-* ExpressJS
-* Parse-Server
-* MongoDB
-
-### HOSTING & STORAGE
-* Linode
-* AWS S3
-
-### Additional Services
-* AWS SES | Sendgrid
-
----
+| Frontend | Backend | Hosting & Storage | Additional Services |
+| ----------- | ----------- | ----------- | ----------- | 
+| React | NodeJs | Linode | AWS SES |
+| Ionic | ExpressJS | AWS S3 | Swagger |
+| TypeScript | TypeScript |  |  |
+| CSS | Parse-Server |  |  |
+|  | MongoDB |  |  | 
 
 # Getting Started
 
@@ -33,13 +22,14 @@
 
 ### Env Variables Required In App Backend
 
-- PORT=
-- JWT_SECRET=
-- PARSE_APPID=
-- PARSE_JSAPIKEY=
-- PARSE_MASTERKEY=
-- PARSE_SERVERURL=
-- AWS_REGION=
-- AWS_ACCESS_KEY=
-- AWS_SECRET_KEY=
-- AWS_S3_BUCKET=
+```PORT=
+JWT_SECRET=
+PARSE_APPID=
+PARSE_JSAPIKEY=
+PARSE_MASTERKEY=
+PARSE_SERVERURL=
+AWS_REGION=
+AWS_ACCESS_KEY=
+AWS_SECRET_KEY=
+AWS_S3_BUCKET=
+```
