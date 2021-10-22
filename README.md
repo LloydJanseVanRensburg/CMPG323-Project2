@@ -2,23 +2,23 @@
 
 #### TECHNOLOGIES
 
-| Frontend | Backend | Hosting & Storage | Additional Services |
-| ----------- | ----------- | ----------- | ----------- | 
-| React | NodeJs | Linode | AWS SES |
-| Ionic | ExpressJS | AWS S3 | Swagger |
-| TypeScript | TypeScript |  |  |
-| CSS | Parse-Server |  |  |
-|  | MongoDB |  |  | 
+| Frontend   | Backend      | Hosting & Storage | Additional Services |
+| ---------- | ------------ | ----------------- | ------------------- |
+| React      | NodeJs       | Linode            | AWS SES             |
+| Ionic      | ExpressJS    | AWS S3            | Swagger             |
+| TypeScript | TypeScript   |                   |                     |
+| CSS        | Parse-Server |                   |                     |
+|            | MongoDB      |                   |                     |
 
 # Getting Started
 
-!! You will need to have *AWS* account and *ParseBack4App* Account !!
+!! You will need to have _AWS_ account and _ParseBack4App_ Account !!
 
 `cd ./backend && npm i`
 `cd ./frontend && npm i`
 
 > Please make sure to add .env file in frontend root dir with flag
-`SKIP_PREFLIGHT_CHECK=true`
+> `SKIP_PREFLIGHT_CHECK=true`
 
 ### Env Variables Required In App Backend
 
@@ -32,4 +32,8 @@ AWS_REGION=
 AWS_ACCESS_KEY=
 AWS_SECRET_KEY=
 AWS_S3_BUCKET=
+EMAIL_SERVICE=
+EMAIL_USERNAME=
+EMAIL_PASSWORD=
+EMAIL_FROM=
 ```
