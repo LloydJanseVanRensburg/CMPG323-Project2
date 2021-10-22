@@ -70,10 +70,10 @@ var AuthenticationService = /** @class */ (function () {
                             data: {
                                 token: token,
                                 user: {
-                                    id: result.get('objectId'),
-                                    username: result.get('username'),
+                                    id: result.id,
+                                    username: result.get('name'),
                                     email: result.get('email'),
-                                    profilePrictureUrl: result.get('profilePrictureUrl'),
+                                    profilePicture: result.get('profilePicture'),
                                 },
                             },
                         });
@@ -122,10 +122,10 @@ var AuthenticationService = /** @class */ (function () {
                             data: {
                                 token: token,
                                 user: {
-                                    id: result.get('objectId'),
-                                    username: result.get('username'),
+                                    id: result.id,
+                                    username: result.get('name'),
                                     email: result.get('email'),
-                                    profilePrictureUrl: result.get('profilePrictureUrl'),
+                                    profilePicture: result.get('profilePicture'),
                                 },
                             },
                         });

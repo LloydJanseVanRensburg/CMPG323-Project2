@@ -100,10 +100,10 @@ var AuthControllers = /** @class */ (function () {
                             data: {
                                 user: {
                                     id: user.id,
-                                    username: user.get('username'),
+                                    username: user.get('name'),
                                     email: user.get('email'),
                                     sessionToken: sessionToken,
-                                    profilePrictureUrl: user.get('profilePictureUrl'),
+                                    profilePicture: user.get('profilePicture'),
                                 },
                             },
                         });
@@ -144,7 +144,7 @@ var AuthControllers = /** @class */ (function () {
     };
     AuthControllers.register = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, username, password, profilePrictureUrl, registerData, data, error_4;
+            var _a, email, username, password, profilePicture, registerData, data, error_4;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -152,13 +152,13 @@ var AuthControllers = /** @class */ (function () {
                         if (!functions_1.validateRegisterAuthBody(req.body)) {
                             return [2 /*return*/, next(new BaseException_1.BaseException('Please provide all email and password', 400))];
                         }
-                        _a = req.body, email = _a.email, username = _a.username, password = _a.password, profilePrictureUrl = _a.profilePrictureUrl;
+                        _a = req.body, email = _a.email, username = _a.username, password = _a.password, profilePicture = _a.profilePicture;
                         registerData = {
                             email: email,
                             username: email,
                             name: username,
                             password: password,
-                            profilePrictureUrl: profilePrictureUrl !== null && profilePrictureUrl !== void 0 ? profilePrictureUrl : 'https://www.kindpng.com/picc/m/24-248253_user-profile-default-image-png-clipart-png-download.png',
+                            profilePicture: profilePicture !== null && profilePicture !== void 0 ? profilePicture : 'ea83409a099cfe26db0a435faf362b31',
                         };
                         return [4 /*yield*/, AuthenticationService_1.AuthenticationService.register(registerData)];
                     case 1:

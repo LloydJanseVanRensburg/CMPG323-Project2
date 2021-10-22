@@ -18,10 +18,12 @@ import Login from './pages/LoginPage/Login';
 import Register from './pages/RegisterPage/Register';
 import axios from 'axios';
 import { config } from './constants/config';
+import { UserAccountData } from './interfaces/interfaces';
 
 const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState<UserAccountData>();
 
   useEffect(() => {
     if (localStorage.getItem('authToken')) {
@@ -50,6 +52,8 @@ const App: React.FC = () => {
       <AuthContext.Provider
         value={{
           loggedIn,
+          userData,
+          setUserData,
           setLoggedIn,
           setLoading,
         }}

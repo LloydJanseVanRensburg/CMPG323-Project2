@@ -36,10 +36,10 @@ export class AuthenticationService {
           data: {
             token: token,
             user: {
-              id: result.get('objectId'),
-              username: result.get('username'),
+              id: result.id,
+              username: result.get('name'),
               email: result.get('email'),
-              profilePrictureUrl: result.get('profilePrictureUrl'),
+              profilePicture: result.get('profilePicture'),
             },
           },
         });
@@ -80,10 +80,10 @@ export class AuthenticationService {
           data: {
             token: token,
             user: {
-              id: result.get('objectId'),
-              username: result.get('username'),
+              id: result.id,
+              username: result.get('name'),
               email: result.get('email'),
-              profilePrictureUrl: result.get('profilePrictureUrl'),
+              profilePicture: result.get('profilePicture'),
             },
           },
         });

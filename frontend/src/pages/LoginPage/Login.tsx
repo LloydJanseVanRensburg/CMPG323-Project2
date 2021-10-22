@@ -1,5 +1,5 @@
 // React Core
-import { useContext, useState } from 'react';
+import { useContext, useState, useRef } from 'react';
 
 // React Router Dom
 import { Redirect } from 'react-router-dom';
@@ -32,7 +32,7 @@ import { config } from '../../constants/config';
 import { AuthContext } from '../../context/authContext/authContext';
 
 const Login = () => {
-  const { loggedIn, setLoggedIn } = useContext(AuthContext);
+  const { loggedIn, setLoggedIn, setUserData } = useContext(AuthContext);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,12 +40,17 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const emailInputRef = useRef<HTMLIonInputElement>(null);
+  const passwordInputRef = useRef<HTMLIonInputElement>(null);
+
   const loginHandler = async () => {
     if (!validateEmail(email)) {
+      emailInputRef.current?.setFocus();
       return setError('Invalid Email');
     }
 
     if (!validatePassword(password)) {
+      passwordInputRef.current?.setFocus();
       return setError('Password should be min of 6 characters');
     }
 
@@ -63,6 +68,7 @@ const Login = () => {
     try {
       setLoading(true);
 
+      // Login into backend
       const result: any = await axios.post(
         `${config.apiURL}/auth/login`,
         data,
@@ -72,6 +78,12 @@ const Login = () => {
       if (result.data.success) {
         setLoading(false);
         localStorage.setItem('authToken', result.data.data.token);
+        setUserData({
+          id: result.data.data.user.id,
+          email: result.data.data.user.email,
+          name: result.data.data.user.name,
+          profilePicture: result.data.data.user.profilePicture,
+        });
         setLoggedIn(true);
       }
     } catch (error: any) {
@@ -122,6 +134,7 @@ const Login = () => {
               type="email"
               value={email}
               onIonChange={(e) => setEmail(e.detail.value!)}
+              ref={emailInputRef}
             ></IonInput>
           </IonItem>
 
@@ -131,6 +144,7 @@ const Login = () => {
               type="password"
               value={password}
               onIonChange={(e) => setPassword(e.detail.value!)}
+              ref={passwordInputRef}
             ></IonInput>
           </IonItem>
 

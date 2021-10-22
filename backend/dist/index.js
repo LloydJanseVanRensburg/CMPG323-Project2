@@ -30,6 +30,9 @@ app.use('/api/v1/posts', postRoutes_1.default);
 // Loading All Image Request From AWS S3 and pipe it to client
 app.get('/api/v1/image/:key', function (req, res) {
     var key = req.params.key;
+    if (!key) {
+        return res.status(404);
+    }
     var readStream = FileUploadMiddleware_1.getFileStream(key);
     readStream.pipe(res);
 });

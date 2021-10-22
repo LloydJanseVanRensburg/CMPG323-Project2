@@ -45,10 +45,10 @@ export class AuthControllers {
         data: {
           user: {
             id: user.id,
-            username: user.get('username'),
+            username: user.get('name'),
             email: user.get('email'),
             sessionToken: sessionToken,
-            profilePrictureUrl: user.get('profilePictureUrl'),
+            profilePicture: user.get('profilePicture'),
           },
         },
       });
@@ -85,16 +85,14 @@ export class AuthControllers {
       }
 
       // Email, Username, Password, ProfileImgURL
-      let { email, username, password, profilePrictureUrl } = req.body;
+      let { email, username, password, profilePicture } = req.body;
 
       let registerData = {
         email,
         username: email,
         name: username,
         password,
-        profilePrictureUrl:
-          profilePrictureUrl ??
-          'https://www.kindpng.com/picc/m/24-248253_user-profile-default-image-png-clipart-png-download.png',
+        profilePicture: profilePicture ?? 'ea83409a099cfe26db0a435faf362b31',
       };
 
       const data = await AuthenticationService.register(registerData);

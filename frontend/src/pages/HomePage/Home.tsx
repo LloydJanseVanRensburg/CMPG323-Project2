@@ -34,7 +34,7 @@ import axios from 'axios';
 import { config } from '../../constants/config';
 
 const Home: React.FC = () => {
-  const { setLoggedIn } = useContext(AuthContext);
+  const { setLoggedIn, userData } = useContext(AuthContext);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -88,7 +88,10 @@ const Home: React.FC = () => {
 
         <div className="home__accountPfp">
           <IonAvatar slot="start">
-            <img src="./avatar-finn.png" alt="" />
+            <img
+              src={`${config.apiURL}/image/${userData?.profilePicture}`}
+              alt="user profile"
+            />
           </IonAvatar>
         </div>
 
@@ -111,8 +114,7 @@ const Home: React.FC = () => {
           <IonListHeader>
             <IonLabel>Notifications</IonLabel>
           </IonListHeader>
-
-          <IonItem>
+          {/* <IonItem>
             <IonAvatar slot="start">
               <img src="./avatar-finn.png" alt="" />
             </IonAvatar>
@@ -121,40 +123,7 @@ const Home: React.FC = () => {
               <h3>I'm a big deal</h3>
               <p>Listen, I've had a pretty messed up day...</p>
             </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonAvatar slot="start">
-              <img src="avatar-finn.png" alt="" />
-            </IonAvatar>
-            <IonLabel>
-              <h2>Han</h2>
-              <h3>Look, kid...</h3>
-              <p>I've got enough on my plate as it is, and I...</p>
-            </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonAvatar slot="start">
-              <img src="avatar-finn.png" alt="" />
-            </IonAvatar>
-            <IonLabel>
-              <h2>Rey</h2>
-              <h3>I can handle myself</h3>
-              <p>You will remove these restraints and leave...</p>
-            </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonAvatar slot="start">
-              <img src="avatar-finn.png" alt="" />
-            </IonAvatar>
-            <IonLabel>
-              <h2>Luke</h2>
-              <h3>Your thoughts betray you</h3>
-              <p>I feel the good in you, the conflict...</p>
-            </IonLabel>
-          </IonItem>
+          </IonItem> */}
         </IonList>
       </IonContent>
     </IonPage>
