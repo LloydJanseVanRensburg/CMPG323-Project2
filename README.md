@@ -12,7 +12,7 @@
 
 # Getting Started
 
-!! You will need to have _AWS_ account and _ParseBack4App_ Account !!
+!! You will need to have the following accounts _AWS_, _ParseBack4App_, _SendGrid_ !!
 
 `cd ./backend && npm i`
 `cd ./frontend && npm i`
@@ -20,20 +20,27 @@
 > Please make sure to add .env file in frontend root dir with flag
 > `SKIP_PREFLIGHT_CHECK=true`
 
-### Env Variables Required In App Backend
+#### Env Variables Required In App Backend
 
-```PORT=
+```
+PORT=
+
 JWT_SECRET=
+
 PARSE_APPID=
 PARSE_JSAPIKEY=
 PARSE_MASTERKEY=
 PARSE_SERVERURL=
+
 AWS_REGION=
 AWS_ACCESS_KEY=
 AWS_SECRET_KEY=
 AWS_S3_BUCKET=
+
 EMAIL_SERVICE=
 EMAIL_USERNAME=
 EMAIL_PASSWORD=
 EMAIL_FROM=
+
+FRONTEND_URL=
 ```
