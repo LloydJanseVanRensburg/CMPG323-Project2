@@ -1,20 +1,19 @@
-import fs from 'fs';
 import multer from 'multer';
 import aws from 'aws-sdk';
 
+// Adding AWS IAM credentials created for this app
 const s3 = new aws.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY!,
   secretAccessKey: process.env.AWS_SECRET_KEY!,
   region: process.env.AWS_REGION!,
 });
 
-export function uploadFile(file: any) {
-  const fileStream = fs.createReadStream(file.path);
-
+// Uploading File to AWS S3
+export function uploadFile(fileBuffer: Buffer, filename: string) {
   const uploadParams = {
     Bucket: process.env.AWS_S3_BUCKET!,
-    Body: fileStream,
-    Key: file.filename,
+    Body: fileBuffer,
+    Key: filename,
   };
 
   return s3.upload(uploadParams).promise();

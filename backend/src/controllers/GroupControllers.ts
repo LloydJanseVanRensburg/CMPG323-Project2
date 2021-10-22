@@ -4,14 +4,47 @@ import { validateCreateGroupBody } from '../utils/functions';
 import { BaseException } from '../modules/BaseException';
 import { uploadFile } from '../middleware/FileUploadMiddleware';
 import { unlinkFile } from '..';
+import { ImageProcessing } from '../services/ImageProcessing';
 
 export class GroupControllers {
-  static getAll(req: Request, res: Response, next: NextFunction) {
+  static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       // Parse Query All Groups
+      const query = new Parse.Query(Parse.Object.extend('Groups'));
+
+      // Pagination Abilities to finding all groups
+      // url example -> /api/v1/groups?page=1&limit=10
+      let { page, limit } = req.query;
+
+      let pageNumber = Number(page) || 1;
+      let limitNumber = Number(limit) || 15;
+
+      // Pagination Logic
+      query.skip((pageNumber - 1) * limitNumber);
+      query.limit(limitNumber);
+
+      // Get Groups and format correct for response
+      const groups = await query.find();
+      const formattedGroups = groups.map((group: any) => {
+        return {
+          id: group.id,
+          title: group.get('title'),
+          description: group.get('description'),
+          groupPicture: group.get('imageKey'),
+          owner: group.get('owner').id,
+        };
+      });
+
       // Respond to client with all groups info
+      res.status(200).json({
+        sucess: true,
+        count: formattedGroups.length,
+        page: pageNumber,
+        data: formattedGroups,
+      });
     } catch (error: any) {
       // handle error
+      next(error);
     }
   }
 
@@ -38,9 +71,14 @@ export class GroupControllers {
         );
       }
 
-      const result = await uploadFile(file);
-      await unlinkFile(file.path);
+      // Optimize the image file
+      const optimizedImgBuffer = await ImageProcessing.optimize(file.path);
+
+      const result = await uploadFile(optimizedImgBuffer, file.filename);
       let imageKey = result.Key;
+
+      // Delete the image file from API server once sent to S3
+      await unlinkFile(file.path);
 
       // Fetching Current User
       const query = new Parse.Query(Parse.User);
@@ -57,6 +95,7 @@ export class GroupControllers {
         description,
         imageKey,
         owner: user,
+        memberCount: 0,
       };
 
       // Creating Group
@@ -76,6 +115,7 @@ export class GroupControllers {
           title: newGroup.get('title'),
           description: newGroup.get('description'),
           groupPicture: newGroup.get('imageKey'),
+          memberCount: newGroup.get('memberCount'),
           ownerId: userId,
         },
       });
@@ -85,39 +125,155 @@ export class GroupControllers {
     }
   }
 
-  static getById(req: Request, res: Response, next: NextFunction) {
+  static async getById(req: Request, res: Response, next: NextFunction) {
     try {
       // Get groupId from params
+      let { groupId } = req.params;
+
       // Parse Query for group with objectId
+      const query = new Parse.Query(Parse.Object.extend('Groups'));
+      query.equalTo('objectId', groupId);
+
+      const foundGroup = await query.first();
+
+      if (!foundGroup) {
+        return next(
+          new BaseException(`Group with objectId: ${groupId} not found`, 404)
+        );
+      }
+
       // Respond back with group info to client
+      res.status(200).json({
+        success: true,
+        data: {
+          id: foundGroup.id,
+          title: foundGroup.get('title'),
+          description: foundGroup.get('description'),
+          groupPicture: foundGroup.get('imageKey'),
+          ownerId: foundGroup.get('owner').id,
+        },
+      });
     } catch (error: any) {
       // handle error
+      next(error);
     }
   }
 
   static async updateById(req: Request, res: Response, next: NextFunction) {
     try {
-      // Get groupId from params
-      // Handle any fileupload on this route for group picture updates
-      // Get body data for update
-      // Parse Query for group by objectId
-      // Update the data  found in body
-      // Save back group
-      // Respond to client with new group info
+      // Find the groups that is being updated
+      let { groupId } = req.params;
+
+      const queryGroup = new Parse.Query(Parse.Object.extend('Groups'));
+      queryGroup.equalTo('objectId', groupId);
+      const foundGroup = await queryGroup.first();
+
+      // Check if group found
+      if (!foundGroup) {
+        return next(
+          new BaseException(
+            `Group with objectId: ${groupId} was not found`,
+            404
+          )
+        );
+      }
+
+      // TODO:
+      // Maby re structure that group has relation 'admin' and check that
+      // only admin have ability to edit group
+
+      // Check that one to update is owner
+      let userId = req.headers['userId'];
+      let ownerId = foundGroup.get('owner').id;
+
+      if (userId !== ownerId) {
+        return next(
+          new BaseException('You are not authorizated to do this', 401)
+        );
+      }
+
+      // Get Body Data and File
+      const { title, description } = req.body;
+      let file = req.file;
+      let imageKey = null;
+
+      if (file) {
+        // Optimize the image file
+        const optimizedImgBuffer = await ImageProcessing.optimize(file.path);
+
+        // Upload File to S3 Bucket
+        const result = await uploadFile(optimizedImgBuffer, file.filename);
+        imageKey = result.Key;
+
+        // Delete the image file from API server once sent to S3
+        await unlinkFile(file.path);
+      }
+
+      // Data that builds up group
+      let groupData: any = {};
+
+      if (title) groupData.title = title;
+      if (description) groupData.description = description;
+      if (imageKey) {
+        // TODO:
+        // Handle any file delete  of the group profile picture if image changed
+
+        groupData.imageKey = imageKey;
+      }
+
+      // Creating Group
+      foundGroup.set(groupData);
+      const updatedGroup = await foundGroup.save();
+
+      // Respond with created group info
+      res.status(201).json({
+        success: true,
+        data: {
+          id: updatedGroup.id,
+          title: updatedGroup.get('title'),
+          description: updatedGroup.get('description'),
+          groupPicture: updatedGroup.get('imageKey'),
+          memberCount: updatedGroup.get('memberCount'),
+          ownerId: updatedGroup.get('owner').id,
+        },
+      });
     } catch (error: any) {
       // handle error
+      next(error);
     }
   }
 
   static async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
       // Get groupId from params
-      // Parse Query group by objectId
+      let { groupId } = req.params;
+
+      const groupQuery = new Parse.Query(Parse.Object.extend('Groups'));
+
+      groupQuery.equalTo('objectId', groupId);
+
+      const foundGroup = await groupQuery.first();
+
+      if (!foundGroup) {
+        return next(
+          new BaseException(`Group with objectId ${groupId} was not found`, 404)
+        );
+      }
+
       // Destroy group
+      await foundGroup.destroy();
+
+      // TODO:
       // Handle any file delete  of the group profile picture
+
       // Respond back to client delete success
+      res.status(200).json({
+        success: true,
+        message: 'Group deleted',
+      });
     } catch (error: any) {
       // handle error
+      next(error);
     }
   }
 
@@ -134,7 +290,9 @@ export class GroupControllers {
 
   static async joinGroup(req: Request, res: Response, next: NextFunction) {
     try {
-      //
+      // check if this user received invite
+      // then add this user to the group member table
+      // respond to client with a redirect to the group page that was joined
     } catch (error: any) {
       // handle error
     }
