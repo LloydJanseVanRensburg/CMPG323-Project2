@@ -40,6 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GroupControllers = void 0;
+var crypto_1 = __importDefault(require("crypto"));
 var node_1 = __importDefault(require("parse/node"));
 var functions_1 = require("../utils/functions");
 var BaseException_1 = require("../modules/BaseException");
@@ -327,68 +328,208 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.inviteToGroup = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var emailInviteList, message_1;
+            var emailInviteList, groupId, groupQuery, foundGroup_1, cleanEmailList, i, email, userQuery, foundUser, groupMemberQuery, isMember, _a, groupInvitesQouery, foundGroupInvites, inviteObj, error_6;
             var _this = this;
-            return __generator(this, function (_a) {
-                try {
-                    emailInviteList = req.body.emailInviteList;
-                    message_1 = "\n        <h1>Your Special Invite</h1>\n      ";
-                    emailInviteList.forEach(function (email) { return __awaiter(_this, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            EmailingServices_1.EmailServices.sendEmail({
-                                to: email,
-                                subject: 'You have been invited to join a group',
-                                text: message_1,
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 8, , 9]);
+                        emailInviteList = req.body.emailInviteList;
+                        groupId = req.params.groupId;
+                        groupQuery = new node_1.default.Query(node_1.default.Object.extend('Groups'));
+                        groupQuery.equalTo('objectId', groupId);
+                        return [4 /*yield*/, groupQuery.first()];
+                    case 1:
+                        foundGroup_1 = _b.sent();
+                        if (!foundGroup_1) {
+                            return [2 /*return*/, next(new BaseException_1.BaseException("Group with objectId " + groupId + " was not found", 404))];
+                        }
+                        cleanEmailList = [];
+                        i = 0;
+                        _b.label = 2;
+                    case 2:
+                        if (!(i < emailInviteList.length)) return [3 /*break*/, 7];
+                        email = emailInviteList[i];
+                        userQuery = new node_1.default.Query(node_1.default.User);
+                        userQuery.equalTo('email', email);
+                        return [4 /*yield*/, userQuery.first()];
+                    case 3:
+                        foundUser = _b.sent();
+                        if (!foundUser) {
+                            return [3 /*break*/, 6];
+                        }
+                        groupMemberQuery = new node_1.default.Query(node_1.default.Object.extend('GroupMembers'));
+                        groupMemberQuery.equalTo('userId', foundUser.id);
+                        groupMemberQuery.equalTo('groupId', foundGroup_1.id);
+                        _a = Boolean;
+                        return [4 /*yield*/, groupMemberQuery.first()];
+                    case 4:
+                        isMember = _a.apply(void 0, [_b.sent()]);
+                        if (isMember) {
+                            return [3 /*break*/, 6];
+                        }
+                        groupInvitesQouery = new node_1.default.Query(node_1.default.Object.extend('GroupInvites'));
+                        groupInvitesQouery.equalTo('email', email);
+                        groupInvitesQouery.equalTo('groupId', groupId);
+                        return [4 /*yield*/, groupInvitesQouery.find()];
+                    case 5:
+                        foundGroupInvites = _b.sent();
+                        foundGroupInvites.forEach(function (invite) { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, invite.destroy()];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
                             });
-                            return [2 /*return*/];
+                        }); });
+                        inviteObj = {
+                            userId: foundUser.id,
+                            groupId: foundGroup_1.id,
+                            email: foundUser.get('username'),
+                        };
+                        cleanEmailList.push(inviteObj);
+                        _b.label = 6;
+                    case 6:
+                        i++;
+                        return [3 /*break*/, 2];
+                    case 7:
+                        cleanEmailList.forEach(function (invite) { return __awaiter(_this, void 0, void 0, function () {
+                            var token, baseURL, customURL, joinLink, message, groupInvite;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        token = crypto_1.default.randomBytes(20).toString('hex');
+                                        baseURL = process.env.FRONTEND_URL;
+                                        customURL = "/groups/" + foundGroup_1.id + "/join?email=" + invite.email + "&token=" + token;
+                                        joinLink = "" + baseURL + customURL;
+                                        message = "\n          <h1>You have received an group invitation to " + foundGroup_1.get('title') + "</h1>\n          <p>Click on the link below to join</p>\n          <p>OR make PUT request to " + customURL + "</p>\n          <a href=\"" + joinLink + "\" clicktracking=off>Join Group</a>\n        ";
+                                        groupInvite = new node_1.default.Object('GroupInvites');
+                                        groupInvite.set({
+                                            email: invite.email,
+                                            groupId: invite.groupId,
+                                            token: token,
+                                        });
+                                        return [4 /*yield*/, groupInvite.save()];
+                                    case 1:
+                                        _a.sent();
+                                        // Send Email
+                                        EmailingServices_1.EmailServices.sendEmail({
+                                            to: invite.email,
+                                            subject: "Group Invite From " + foundGroup_1.get('title'),
+                                            text: message,
+                                        });
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        res.status(200).json({
+                            success: true,
+                            message: 'Invites sent',
                         });
-                    }); });
-                    res.status(200).json({
-                        success: true,
-                        message: 'Invites sent',
-                    });
-                    // Check if these emails are actuall users of the app
-                    // Check that they are not part of group already
-                    // Send out emails to email list
+                        return [3 /*break*/, 9];
+                    case 8:
+                        error_6 = _b.sent();
+                        // handle error
+                        next(error_6);
+                        return [3 /*break*/, 9];
+                    case 9: return [2 /*return*/];
                 }
-                catch (error) {
-                    // handle error
-                    next(error);
-                }
-                return [2 /*return*/];
             });
         });
     };
     GroupControllers.joinGroup = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                try {
-                    // check if this user received invite
-                    // then add this user to the group member table
-                    // respond to client with a redirect to the group page that was joined
+            var _a, email, token, groupId, groupInviteQuery, foundGroupInvite, userQuery, foundUser, groupMember, error_7;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 5, , 6]);
+                        _a = req.query, email = _a.email, token = _a.token;
+                        groupId = req.params.groupId;
+                        groupInviteQuery = new node_1.default.Query(node_1.default.Object.extend('GroupInvites'));
+                        groupInviteQuery.equalTo('email', email);
+                        groupInviteQuery.equalTo('groupId', groupId);
+                        groupInviteQuery.equalTo('token', token);
+                        return [4 /*yield*/, groupInviteQuery.first()];
+                    case 1:
+                        foundGroupInvite = _b.sent();
+                        if (!foundGroupInvite) {
+                            return [2 /*return*/, next(new BaseException_1.BaseException('You where not invited, sorry!', 404))];
+                        }
+                        userQuery = new node_1.default.Query(node_1.default.User);
+                        userQuery.equalTo('email', email);
+                        return [4 /*yield*/, userQuery.first()];
+                    case 2:
+                        foundUser = _b.sent();
+                        if (!foundUser) {
+                            return [2 /*return*/, next(new BaseException_1.BaseException("No user with email " + email + " was found", 404))];
+                        }
+                        groupMember = new node_1.default.Object('GroupMembers');
+                        groupMember.set({
+                            userId: foundUser.id,
+                            groupId: groupId,
+                        });
+                        return [4 /*yield*/, groupMember.save()];
+                    case 3:
+                        _b.sent();
+                        // Destroy Invite once user is joined
+                        return [4 /*yield*/, foundGroupInvite.destroy()];
+                    case 4:
+                        // Destroy Invite once user is joined
+                        _b.sent();
+                        res.status(201).json({
+                            success: true,
+                            message: 'Joined group',
+                        });
+                        return [3 /*break*/, 6];
+                    case 5:
+                        error_7 = _b.sent();
+                        // handle error
+                        next(error_7);
+                        return [3 /*break*/, 6];
+                    case 6: return [2 /*return*/];
                 }
-                catch (error) {
-                    // handle error
-                    next(error);
-                }
-                return [2 /*return*/];
             });
         });
     };
     GroupControllers.leaveGroup = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
+            var groupId, userId, groupMemberQuery, foundGroupMember, error_8;
             return __generator(this, function (_a) {
-                try {
-                    // Get groupId and userId
-                    // Parse Query the group members table by userId and groupId
-                    // Detroy the link between user and group
-                    // Respond to the client group left success
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        groupId = req.params.groupId;
+                        userId = req.headers['userId'];
+                        groupMemberQuery = new node_1.default.Query(node_1.default.Object.extend('GroupMembers'));
+                        groupMemberQuery.equalTo('userId', userId);
+                        groupMemberQuery.equalTo('groupId', groupId);
+                        return [4 /*yield*/, groupMemberQuery.first()];
+                    case 1:
+                        foundGroupMember = _a.sent();
+                        if (!foundGroupMember) {
+                            return [2 /*return*/, next(new BaseException_1.BaseException("User " + userId + " was never joined to group " + groupId, 400))];
+                        }
+                        // Detroy the link between user and group
+                        return [4 /*yield*/, foundGroupMember.destroy()];
+                    case 2:
+                        // Detroy the link between user and group
+                        _a.sent();
+                        // Respond to the client group left success
+                        res.status(201).json({
+                            success: true,
+                            message: 'Left group',
+                        });
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_8 = _a.sent();
+                        // handle error
+                        next(error_8);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
-                catch (error) {
-                    // handle error
-                    next(error);
-                }
-                return [2 /*return*/];
             });
         });
     };

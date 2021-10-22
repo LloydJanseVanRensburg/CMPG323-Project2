@@ -8,6 +8,7 @@ interface SendEmailOptions {
 
 export class EmailServices {
   static sendEmail(options: SendEmailOptions) {
+    console.log('seding...1');
     const transporter = nodemailer.createTransport({
       service: process.env.EMAIL_SERVICE,
       auth: {
@@ -24,6 +25,7 @@ export class EmailServices {
     };
 
     transporter.sendMail(mailOptions, function (err, info) {
+      console.log('sending...2');
       if (err) {
         console.log(err);
       } else {

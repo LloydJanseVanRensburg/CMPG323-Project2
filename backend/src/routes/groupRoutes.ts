@@ -41,12 +41,26 @@ router.put(
 router.delete('/:groupId', AuthMiddleware.auth, GroupControllers.deleteById);
 
 // @route /api/v1/groups/:groupId/invite
-// @desc - DELETE remove group by id
+// @desc - POST remove group by id
 // @access Private
 router.post(
   '/:groupId/invite',
   AuthMiddleware.auth,
   GroupControllers.inviteToGroup
+);
+
+// @route /api/v1/groups/:groupId/join?email=&token=
+// @desc - PUT will join the user to group
+// @access Public
+router.put('/:groupId/join', GroupControllers.joinGroup);
+
+// @route /api/v1/groups/:groupId/join?email=&token=
+// @desc - DELETE will  leave the user from group
+// @access Private
+router.delete(
+  '/:groupId/leave',
+  AuthMiddleware.auth,
+  GroupControllers.leaveGroup
 );
 
 export default router;

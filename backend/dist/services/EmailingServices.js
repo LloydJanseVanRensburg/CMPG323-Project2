@@ -9,6 +9,7 @@ var EmailServices = /** @class */ (function () {
     function EmailServices() {
     }
     EmailServices.sendEmail = function (options) {
+        console.log('seding...1');
         var transporter = nodemailer_1.default.createTransport({
             service: process.env.EMAIL_SERVICE,
             auth: {
@@ -23,6 +24,7 @@ var EmailServices = /** @class */ (function () {
             html: options.text,
         };
         transporter.sendMail(mailOptions, function (err, info) {
+            console.log('sending...2');
             if (err) {
                 console.log(err);
             }

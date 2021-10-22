@@ -29,7 +29,15 @@ router.put('/:groupId', AuthMiddleware_1.AuthMiddleware.auth, FileUploadMiddlewa
 // @access Private
 router.delete('/:groupId', AuthMiddleware_1.AuthMiddleware.auth, GroupControllers_1.GroupControllers.deleteById);
 // @route /api/v1/groups/:groupId/invite
-// @desc - DELETE remove group by id
+// @desc - POST remove group by id
 // @access Private
 router.post('/:groupId/invite', AuthMiddleware_1.AuthMiddleware.auth, GroupControllers_1.GroupControllers.inviteToGroup);
+// @route /api/v1/groups/:groupId/join?email=&token=
+// @desc - PUT will join the user to group
+// @access Public
+router.put('/:groupId/join', GroupControllers_1.GroupControllers.joinGroup);
+// @route /api/v1/groups/:groupId/join?email=&token=
+// @desc - DELETE will  leave the user from group
+// @access Private
+router.delete('/:groupId/leave', AuthMiddleware_1.AuthMiddleware.auth, GroupControllers_1.GroupControllers.leaveGroup);
 exports.default = router;
