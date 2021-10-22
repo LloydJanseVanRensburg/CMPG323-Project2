@@ -23,6 +23,8 @@
 
 # Getting Started
 
+!! You will need to have *AWS* account and *ParseBack4App* Account !!
+
 `cd ./backend && npm i`
 `cd ./frontend && npm i`
 
