@@ -285,6 +285,7 @@ export class GroupControllers {
       // Send out emails to email list
     } catch (error: any) {
       // handle error
+      next(error);
     }
   }
 
@@ -295,6 +296,7 @@ export class GroupControllers {
       // respond to client with a redirect to the group page that was joined
     } catch (error: any) {
       // handle error
+      next(error);
     }
   }
 
@@ -306,6 +308,7 @@ export class GroupControllers {
       // Respond to the client group left success
     } catch (error: any) {
       // handle error
+      next(error);
     }
   }
 }
