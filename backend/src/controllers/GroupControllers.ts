@@ -5,6 +5,7 @@ import { BaseException } from '../modules/BaseException';
 import { uploadFile } from '../middleware/FileUploadMiddleware';
 import { unlinkFile } from '..';
 import { ImageProcessing } from '../services/ImageProcessing';
+import { EmailServices } from '../services/EmailingServices';
 
 export class GroupControllers {
   static async getAll(req: Request, res: Response, next: NextFunction) {
@@ -280,6 +281,25 @@ export class GroupControllers {
   static async inviteToGroup(req: Request, res: Response, next: NextFunction) {
     try {
       // Get list of emails to invite from req.body
+      let { emailInviteList } = req.body;
+
+      let message = `
+        <h1>Your Special Invite</h1>
+      `;
+
+      emailInviteList.forEach(async (email: string) => {
+        EmailServices.sendEmail({
+          to: email,
+          subject: 'You have been invited to join a group',
+          text: message,
+        });
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Invites sent',
+      });
+
       // Check if these emails are actuall users of the app
       // Check that they are not part of group already
       // Send out emails to email list

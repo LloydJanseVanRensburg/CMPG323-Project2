@@ -40,4 +40,13 @@ router.put(
 // @access Private
 router.delete('/:groupId', AuthMiddleware.auth, GroupControllers.deleteById);
 
+// @route /api/v1/groups/:groupId/invite
+// @desc - DELETE remove group by id
+// @access Private
+router.post(
+  '/:groupId/invite',
+  AuthMiddleware.auth,
+  GroupControllers.inviteToGroup
+);
+
 export default router;
