@@ -7,12 +7,12 @@
 | React      | NodeJs       | Linode            | AWS SES             |
 | Ionic      | ExpressJS    | AWS S3            | Swagger             |
 | TypeScript | TypeScript   |                   |                     |
-| CSS        | Parse-Server |                   |                     |
-|            | MongoDB      |                   |                     |
+| CSS        | MongoDB |                   |                     |
+
 
 # Getting Started
 
-!! You will need to have the following accounts _AWS_, _ParseBack4App_, _SendGrid_ !!
+!! Account needed for following services: AWS, Linode, MongoDB Atlas !!
 
 `cd ./backend && npm i`
 `cd ./frontend && npm i`
@@ -25,22 +25,20 @@
 ```
 PORT=
 
+MONGO_CONNECT_URI=
+MONGO_USER=
+MONGO_PASSWORD=
+
 JWT_SECRET=
 
-PARSE_APPID=
-PARSE_JSAPIKEY=
-PARSE_MASTERKEY=
-PARSE_SERVERURL=
-
 AWS_REGION=
-AWS_ACCESS_KEY=
-AWS_SECRET_KEY=
+
+AWS_S3_ACCESS_KEY=
+AWS_S3_SECRET_KEY=
 AWS_S3_BUCKET=
 
-EMAIL_SERVICE=
-EMAIL_USERNAME=
-EMAIL_PASSWORD=
-EMAIL_FROM=
+AWS_SES_ACCESS_KEY=
+AWS_SES_SECRET_KEY=
 
 FRONTEND_URL=
 ```
