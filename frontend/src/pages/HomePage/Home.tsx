@@ -44,13 +44,7 @@ import { config } from '../../constants/config';
 const Home: React.FC = () => {
   // const [showPopover, setShowPopover] = useState(false);
 
-  const {
-    userData,
-    logoutUser,
-    logoutUserError,
-    logoutUserLoading,
-    setLogoutUserError,
-  } = useContext(AuthContext);
+  const { userData, logoutUser } = useContext(AuthContext);
 
   const [popoverState, setShowPopover] = useState({
     showPopover: false,
@@ -58,7 +52,7 @@ const Home: React.FC = () => {
   });
 
   const logoutHandler = async () => {
-    await logoutUser();
+    logoutUser();
   };
 
   return (
@@ -94,7 +88,7 @@ const Home: React.FC = () => {
               <IonItem>
                 <IonLabel>Edit Account</IonLabel>
               </IonItem>
-              <IonItem>
+              <IonItem onClick={logoutHandler}>
                 <IonLabel>Logout</IonLabel>
               </IonItem>
             </IonList>
@@ -102,24 +96,6 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonToast
-          isOpen={logoutUserError !== ''}
-          onDidDismiss={() => setLogoutUserError('')}
-          message={logoutUserError}
-          color="danger"
-          duration={5000}
-          buttons={[
-            {
-              side: 'end',
-              role: 'cancel',
-              icon: closeOutline,
-              handler: () => {
-                setLogoutUserError('');
-              },
-            },
-          ]}
-        />
-
         <IonItemDivider>
           <IonLabel>Account Info</IonLabel>
         </IonItemDivider>
@@ -161,23 +137,6 @@ const Home: React.FC = () => {
             </IonRow>
           </IonGrid>
         </div>
-
-        {/* <IonItemDivider>
-          <IonLabel>Account Settings</IonLabel>
-        </IonItemDivider>
-
-        <div className="home__accountLogout">
-          <IonButton disabled={logoutUserLoading} color="primary">
-            Edit
-          </IonButton>
-          <IonButton
-            disabled={logoutUserLoading}
-            color="danger"
-            onClick={logoutHandler}
-          >
-            {logoutUserLoading ? <IonSpinner name="circles" /> : 'Logout'}
-          </IonButton>
-        </div> */}
 
         <IonItemDivider>
           <IonLabel>Account Notifications</IonLabel>

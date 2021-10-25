@@ -69,23 +69,11 @@ export const authReducer = (state: any, action: any) => {
       };
 
     // LOGOUT USER
-    case actionTypes.LOGOUT_USER_LOADING:
+    case actionTypes.LOGOUT_USER:
       return {
         ...state,
-        logoutUserLoading: true,
-      };
-    case actionTypes.LOGOUT_USER_SUCCESS:
-      return {
-        ...state,
-        logoutUserLoading: false,
         userData: null,
         isLoggedIn: false,
-      };
-    case actionTypes.LOGOUT_USER_FAIL:
-      return {
-        ...state,
-        logoutUserLoading: false,
-        logoutUserError: action.payload,
       };
 
     // DEFAULT RETURN

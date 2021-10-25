@@ -22,6 +22,11 @@ var groupSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    memberCount: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
 }, { timestamps: true });
 var Group = mongoose_1.default.model('Group', groupSchema);
 exports.default = Group;

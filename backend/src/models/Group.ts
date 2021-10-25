@@ -19,6 +19,11 @@ const groupSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    memberCount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

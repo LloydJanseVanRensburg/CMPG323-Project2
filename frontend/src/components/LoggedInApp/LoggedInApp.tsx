@@ -42,7 +42,6 @@ const LoggedInApp = () => {
         <IonTabButton tab="account" href="/my/account">
           <IonIcon icon={personOutline} />
           <IonLabel>Account</IonLabel>
-          <IonBadge>1</IonBadge>
         </IonTabButton>
 
         <IonTabButton tab="groups" href="/my/groups">

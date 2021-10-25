@@ -83,7 +83,7 @@ const Register = () => {
       <IonContent fullscreen>
         <IonToast
           isOpen={registerUserError !== ''}
-          onDidDismiss={() => registerUserError('')}
+          onDidDismiss={() => setRegisterUserError('')}
           message={registerUserError}
           color="danger"
           duration={5000}
@@ -93,7 +93,7 @@ const Register = () => {
               role: 'cancel',
               icon: closeOutline,
               handler: () => {
-                registerUserError('');
+                setRegisterUserError('');
               },
             },
           ]}

@@ -1,57 +1,39 @@
 // Core React
-import { useEffect, useState } from 'react';
-
-// Axios & Modules
-import axios from 'axios';
+import { useEffect, useState, useContext } from 'react';
 
 // Ionic Components
 import {
   IonContent,
   IonHeader,
   IonPage,
+  IonSearchbar,
   IonSpinner,
   IonTitle,
+  IonToast,
   IonToolbar,
 } from '@ionic/react';
 
 // Styling & Assets
 import './Groups.css';
-import { config } from '../../constants/config';
+import { GroupsContext } from '../../context/Groups/groupsContext';
+import GroupsList from '../../components/GroupsList/GroupsList';
+import { closeOutline } from 'ionicons/icons';
 
 const Groups = () => {
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const {
+    groupsDataLoading,
+    groupsDataError,
+    groupsData,
+    getUserGroupsData,
+    setGroupsDataError,
+  } = useContext(GroupsContext);
+
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    fetchGroupData();
-  }, []);
+    getUserGroupsData();
+  }, [getUserGroupsData]);
 
-  const fetchGroupData = async () => {
-    try {
-      let axiosConfig = {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      };
-
-      setLoading(true);
-      const { data }: any = await axios.get(
-        `${config.apiURL}/groups`,
-        axiosConfig
-      );
-      const groups = data.data;
-
-      setGroups(groups);
-      setLoading(false);
-    } catch (error: any) {
-      let message = error.response
-        ? error.response.data.message
-        : 'Something went wrong please try again';
-      setError(message);
-      setLoading(false);
-    }
-  };
   return (
     <IonPage>
       <IonHeader>
@@ -60,22 +42,31 @@ const Groups = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        {loading ? (
-          <IonSpinner />
-        ) : (
-          <ul>
-            {groups.map((group: any) => (
-              <li key={group.id}>
-                <img
-                  src={`${config.apiURL}/image/${group.groupPicture}`}
-                  alt="group profile"
-                />
-                <p>{group.title}</p>
-                <p>{group.description}</p>
-              </li>
-            ))}
-          </ul>
-        )}
+        <IonToast
+          isOpen={groupsDataError !== ''}
+          onDidDismiss={() => setGroupsDataError('')}
+          message={groupsDataError}
+          color="danger"
+          duration={5000}
+          buttons={[
+            {
+              side: 'end',
+              role: 'cancel',
+              icon: closeOutline,
+              handler: () => {
+                setGroupsDataError('');
+              },
+            },
+          ]}
+        />
+
+        <IonSearchbar
+          value={searchText}
+          onIonChange={(e) => setSearchText(e.detail.value!)}
+        ></IonSearchbar>
+
+        {groupsDataLoading && <IonSpinner />}
+        {!groupsDataLoading && <GroupsList groups={groupsData} />}
       </IonContent>
     </IonPage>
   );

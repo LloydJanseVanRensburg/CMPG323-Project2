@@ -75,7 +75,7 @@ var GroupControllers = /** @class */ (function () {
                                 id: group._id,
                                 title: group.title,
                                 description: group.description,
-                                groupPicture: group.profilePicture,
+                                groupPicture: group.groupPicture,
                                 owner: group.owner,
                             };
                         });
@@ -128,10 +128,10 @@ var GroupControllers = /** @class */ (function () {
                         // Delete the image file from API server once sent to S3
                         _b.sent();
                         groupData = {
+                            owner: userId,
                             title: title,
                             description: description,
-                            imageKey: imageKey,
-                            owner: userId,
+                            groupPicture: imageKey,
                             memberCount: 0,
                         };
                         newGroup = new Group_1.default(groupData);

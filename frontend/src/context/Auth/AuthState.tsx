@@ -30,9 +30,6 @@ const AuthState: React.FC = ({ children }) => {
 
     registerUserLoading: false,
     registerUserError: '',
-
-    logoutUserLoading: false,
-    logoutUserError: '',
   };
 
   const [state, dispatch] = useReducer(authReducer, authInitialReducerState);
@@ -146,44 +143,21 @@ const AuthState: React.FC = ({ children }) => {
     }
   };
 
-  const logoutUser = async () => {
-    try {
-      dispatch({ type: actionTypes.LOGOUT_USER_LOADING });
-
-      let token = localStorage.getItem('authToken');
-
-      await axios.get(`${config.apiURL}/auth/logout`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      localStorage.removeItem('authToken');
-      dispatch({ type: actionTypes.LOGOUT_USER_SUCCESS });
-    } catch (error: any) {
-      let message = error.response
-        ? error.response.data.message
-        : 'Something went wrong please try again';
-
-      dispatch({ type: actionTypes.LOGOUT_USER_FAIL, payload: message });
-    }
+  const logoutUser = () => {
+    dispatch({ type: actionTypes.LOGOUT_USER });
+    localStorage.removeItem('authToken');
   };
 
-  const setLoginUserError = (message: string) => {
+  function setLoginUserError(message: string) {
     dispatch({
       type: actionTypes.LOGIN_USER_FAIL,
       payload: message,
     });
-  };
+  }
 
   const setRegisterUserError = (message: string) => {
     dispatch({
       type: actionTypes.REGISTER_USER_FAIL,
-      payload: message,
-    });
-  };
-
-  const setLogoutUserError = (message: string) => {
-    dispatch({
-      type: actionTypes.LOGOUT_USER_FAIL,
       payload: message,
     });
   };
@@ -199,15 +173,12 @@ const AuthState: React.FC = ({ children }) => {
         loginUserError: state.loginUserError,
         registerUserLoading: state.registerUserLoading,
         registerUserError: state.registerUserError,
-        logoutUserLoading: state.logoutUserLoading,
-        logoutUserError: state.logoutUserError,
         getCurrentUserFromToken,
         registerUser,
         loginUser,
         logoutUser,
         setLoginUserError,
         setRegisterUserError,
-        setLogoutUserError,
       }}
     >
       {children}

@@ -34,7 +34,7 @@ export class GroupControllers {
           id: group._id,
           title: group.title,
           description: group.description,
-          groupPicture: group.profilePicture,
+          groupPicture: group.groupPicture,
           owner: group.owner,
         };
       });
@@ -86,10 +86,10 @@ export class GroupControllers {
 
       // Data that builds up group
       let groupData = {
+        owner: userId,
         title,
         description,
-        imageKey,
-        owner: userId,
+        groupPicture: imageKey,
         memberCount: 0,
       };
 

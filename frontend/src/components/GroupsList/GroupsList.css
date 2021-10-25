@@ -1,0 +1,18 @@
+.groupsList__flexContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+}
+
+.createGroup_form {
+  padding: 12px;
+}
+
+.createGroup_form > ion-item {
+  margin: 1.5rem 0;
+}
+
+.createGroup_form > ion-item::part(native) {
+  padding-left: 0px;
+}

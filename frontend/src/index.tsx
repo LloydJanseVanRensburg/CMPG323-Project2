@@ -22,14 +22,20 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import './theme/global.css';
+
 import AuthState from './context/Auth/AuthState';
+import GroupsState from './context/Groups/GroupsState';
+import GroupState from './context/Group/GroupState';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <AuthState>
-      <App />
-    </AuthState>
-  </React.StrictMode>,
+  <AuthState>
+    <GroupsState>
+      <GroupState>
+        <App />
+      </GroupState>
+    </GroupsState>
+  </AuthState>,
   document.getElementById('root')
 );
 
