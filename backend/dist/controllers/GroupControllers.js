@@ -41,40 +41,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GroupControllers = void 0;
 var crypto_1 = __importDefault(require("crypto"));
-var node_1 = __importDefault(require("parse/node"));
 var functions_1 = require("../utils/functions");
 var BaseException_1 = require("../modules/BaseException");
 var FileUploadMiddleware_1 = require("../middleware/FileUploadMiddleware");
 var __1 = require("..");
 var ImageProcessing_1 = require("../services/ImageProcessing");
 var EmailingServices_1 = require("../services/EmailingServices");
+var Group_1 = __importDefault(require("../models/Group"));
+var User_1 = __importDefault(require("../models/User"));
+var GroupInvite_1 = __importDefault(require("../models/GroupInvite"));
+var GroupMember_1 = __importDefault(require("../models/GroupMember"));
 var GroupControllers = /** @class */ (function () {
     function GroupControllers() {
     }
     GroupControllers.getAll = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var query, _a, page, limit, pageNumber, limitNumber, groups, formattedGroups, error_1;
+            var _a, page, limit, pageNumber, limitNumber, groupsQuery, groups, formattedGroups, error_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 2, , 3]);
-                        query = new node_1.default.Query(node_1.default.Object.extend('Groups'));
                         _a = req.query, page = _a.page, limit = _a.limit;
                         pageNumber = Number(page) || 1;
                         limitNumber = Number(limit) || 15;
-                        // Pagination Logic
-                        query.skip((pageNumber - 1) * limitNumber);
-                        query.limit(limitNumber);
-                        return [4 /*yield*/, query.find()];
+                        groupsQuery = Group_1.default.find();
+                        groupsQuery.skip((pageNumber - 1) * limitNumber);
+                        groupsQuery.limit(limitNumber);
+                        return [4 /*yield*/, groupsQuery.find()];
                     case 1:
                         groups = _b.sent();
                         formattedGroups = groups.map(function (group) {
                             return {
-                                id: group.id,
-                                title: group.get('title'),
-                                description: group.get('description'),
-                                groupPicture: group.get('imageKey'),
-                                owner: group.get('owner').id,
+                                id: group._id,
+                                title: group.title,
+                                description: group.description,
+                                groupPicture: group.profilePicture,
+                                owner: group.owner,
                             };
                         });
                         // Respond to client with all groups info
@@ -97,11 +99,11 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.create = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId, _a, title, description, file, optimizedImgBuffer, result, imageKey, query, user, groupData, group, newGroup, error_2;
+            var userId, _a, title, description, file, optimizedImgBuffer, result, imageKey, groupData, newGroup, error_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 6, , 7]);
+                        _b.trys.push([0, 5, , 6]);
                         userId = req.headers['userId'];
                         // Validate Body data
                         if (!functions_1.validateCreateGroupBody(req.body)) {
@@ -125,25 +127,16 @@ var GroupControllers = /** @class */ (function () {
                     case 3:
                         // Delete the image file from API server once sent to S3
                         _b.sent();
-                        query = new node_1.default.Query(node_1.default.User);
-                        query.equalTo('objectId', userId);
-                        return [4 /*yield*/, query.first()];
-                    case 4:
-                        user = _b.sent();
-                        if (!user) {
-                            return [2 /*return*/, next(new BaseException_1.BaseException('User not found', 404))];
-                        }
                         groupData = {
                             title: title,
                             description: description,
                             imageKey: imageKey,
-                            owner: user,
+                            owner: userId,
                             memberCount: 0,
                         };
-                        group = new node_1.default.Object('Groups');
-                        group.set(groupData);
-                        return [4 /*yield*/, group.save()];
-                    case 5:
+                        newGroup = new Group_1.default(groupData);
+                        return [4 /*yield*/, newGroup.save()];
+                    case 4:
                         newGroup = _b.sent();
                         // TODO:
                         // Check if inviteEmailList is added then invites and add users
@@ -152,50 +145,48 @@ var GroupControllers = /** @class */ (function () {
                         res.status(201).json({
                             success: true,
                             data: {
-                                id: newGroup.id,
-                                title: newGroup.get('title'),
-                                description: newGroup.get('description'),
-                                groupPicture: newGroup.get('imageKey'),
-                                memberCount: newGroup.get('memberCount'),
+                                id: newGroup._id,
+                                title: newGroup.title,
+                                description: newGroup.description,
+                                groupPicture: newGroup.profilePicture,
+                                memberCount: newGroup.memberCount,
                                 ownerId: userId,
                             },
                         });
-                        return [3 /*break*/, 7];
-                    case 6:
+                        return [3 /*break*/, 6];
+                    case 5:
                         error_2 = _b.sent();
                         // handle error
                         next(error_2);
-                        return [3 /*break*/, 7];
-                    case 7: return [2 /*return*/];
+                        return [3 /*break*/, 6];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
     };
     GroupControllers.getById = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var groupId, query, foundGroup, error_3;
+            var groupId, group, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         groupId = req.params.groupId;
-                        query = new node_1.default.Query(node_1.default.Object.extend('Groups'));
-                        query.equalTo('objectId', groupId);
-                        return [4 /*yield*/, query.first()];
+                        return [4 /*yield*/, Group_1.default.findById(groupId)];
                     case 1:
-                        foundGroup = _a.sent();
-                        if (!foundGroup) {
+                        group = _a.sent();
+                        if (!group) {
                             return [2 /*return*/, next(new BaseException_1.BaseException("Group with objectId: " + groupId + " not found", 404))];
                         }
                         // Respond back with group info to client
                         res.status(200).json({
                             success: true,
                             data: {
-                                id: foundGroup.id,
-                                title: foundGroup.get('title'),
-                                description: foundGroup.get('description'),
-                                groupPicture: foundGroup.get('imageKey'),
-                                ownerId: foundGroup.get('owner').id,
+                                id: group._id,
+                                title: group.title,
+                                description: group.description,
+                                groupPicture: group.groupPicture,
+                                ownerId: group.owner,
                             },
                         });
                         return [3 /*break*/, 3];
@@ -211,15 +202,13 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.updateById = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var groupId, queryGroup, foundGroup, userId, ownerId, _a, title, description, file, imageKey, optimizedImgBuffer, result, groupData, updatedGroup, error_4;
+            var groupId, foundGroup, userId, ownerId, _a, title, description, file, imageKey, optimizedImgBuffer, result, groupData, updatedGroup, error_4;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 7, , 8]);
                         groupId = req.params.groupId;
-                        queryGroup = new node_1.default.Query(node_1.default.Object.extend('Groups'));
-                        queryGroup.equalTo('objectId', groupId);
-                        return [4 /*yield*/, queryGroup.first()];
+                        return [4 /*yield*/, Group_1.default.findById(groupId)];
                     case 1:
                         foundGroup = _b.sent();
                         // Check if group found
@@ -227,7 +216,7 @@ var GroupControllers = /** @class */ (function () {
                             return [2 /*return*/, next(new BaseException_1.BaseException("Group with objectId: " + groupId + " was not found", 404))];
                         }
                         userId = req.headers['userId'];
-                        ownerId = foundGroup.get('owner').id;
+                        ownerId = foundGroup.owner;
                         if (userId !== ownerId) {
                             return [2 /*return*/, next(new BaseException_1.BaseException('You are not authorizated to do this', 401))];
                         }
@@ -259,21 +248,22 @@ var GroupControllers = /** @class */ (function () {
                             // Handle any file delete  of the group profile picture if image changed
                             groupData.imageKey = imageKey;
                         }
-                        // Creating Group
-                        foundGroup.set(groupData);
-                        return [4 /*yield*/, foundGroup.save()];
+                        return [4 /*yield*/, Group_1.default.findByIdAndUpdate(groupId, groupData, {
+                                runValidators: true,
+                                new: true,
+                            })];
                     case 6:
                         updatedGroup = _b.sent();
                         // Respond with created group info
                         res.status(201).json({
                             success: true,
                             data: {
-                                id: updatedGroup.id,
-                                title: updatedGroup.get('title'),
-                                description: updatedGroup.get('description'),
-                                groupPicture: updatedGroup.get('imageKey'),
-                                memberCount: updatedGroup.get('memberCount'),
-                                ownerId: updatedGroup.get('owner').id,
+                                id: updatedGroup._id,
+                                title: updatedGroup.title,
+                                description: updatedGroup.description,
+                                groupPicture: updatedGroup.groupPicture,
+                                memberCount: updatedGroup.memberCount,
+                                ownerId: updatedGroup.owner,
                             },
                         });
                         return [3 /*break*/, 8];
@@ -289,24 +279,20 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.deleteById = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var groupId, groupQuery, foundGroup, error_5;
+            var groupId, group, error_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
                         groupId = req.params.groupId;
-                        groupQuery = new node_1.default.Query(node_1.default.Object.extend('Groups'));
-                        groupQuery.equalTo('objectId', groupId);
-                        return [4 /*yield*/, groupQuery.first()];
+                        return [4 /*yield*/, Group_1.default.findById(groupId)];
                     case 1:
-                        foundGroup = _a.sent();
-                        if (!foundGroup) {
+                        group = _a.sent();
+                        if (!group) {
                             return [2 /*return*/, next(new BaseException_1.BaseException("Group with objectId " + groupId + " was not found", 404))];
                         }
-                        // Destroy group
-                        return [4 /*yield*/, foundGroup.destroy()];
+                        return [4 /*yield*/, Group_1.default.findByIdAndRemove(groupId)];
                     case 2:
-                        // Destroy group
                         _a.sent();
                         // TODO:
                         // Handle any file delete  of the group profile picture
@@ -328,56 +314,51 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.inviteToGroup = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var emailInviteList, groupId, groupQuery, foundGroup_1, cleanEmailList, i, email, userQuery, foundUser, groupMemberQuery, isMember, _a, groupInvitesQouery, foundGroupInvites, inviteObj, error_6;
+            var emailInviteList, groupId, foundGroup_1, cleanEmailList, i, email, foundUser, isMember, foundGroupInvites, inviteObj, error_6;
             var _this = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _b.trys.push([0, 8, , 9]);
+                        _a.trys.push([0, 8, , 9]);
                         emailInviteList = req.body.emailInviteList;
                         groupId = req.params.groupId;
-                        groupQuery = new node_1.default.Query(node_1.default.Object.extend('Groups'));
-                        groupQuery.equalTo('objectId', groupId);
-                        return [4 /*yield*/, groupQuery.first()];
+                        return [4 /*yield*/, Group_1.default.findById(groupId)];
                     case 1:
-                        foundGroup_1 = _b.sent();
+                        foundGroup_1 = _a.sent();
                         if (!foundGroup_1) {
                             return [2 /*return*/, next(new BaseException_1.BaseException("Group with objectId " + groupId + " was not found", 404))];
                         }
                         cleanEmailList = [];
                         i = 0;
-                        _b.label = 2;
+                        _a.label = 2;
                     case 2:
                         if (!(i < emailInviteList.length)) return [3 /*break*/, 7];
                         email = emailInviteList[i];
-                        userQuery = new node_1.default.Query(node_1.default.User);
-                        userQuery.equalTo('email', email);
-                        return [4 /*yield*/, userQuery.first()];
+                        return [4 /*yield*/, User_1.default.findOne({ email: email })];
                     case 3:
-                        foundUser = _b.sent();
+                        foundUser = _a.sent();
                         if (!foundUser) {
                             return [3 /*break*/, 6];
                         }
-                        groupMemberQuery = new node_1.default.Query(node_1.default.Object.extend('GroupMembers'));
-                        groupMemberQuery.equalTo('userId', foundUser.id);
-                        groupMemberQuery.equalTo('groupId', foundGroup_1.id);
-                        _a = Boolean;
-                        return [4 /*yield*/, groupMemberQuery.first()];
+                        return [4 /*yield*/, GroupMember_1.default.findOne({
+                                userId: foundUser._id,
+                                groupId: foundGroup_1._id,
+                            })];
                     case 4:
-                        isMember = _a.apply(void 0, [_b.sent()]);
+                        isMember = _a.sent();
                         if (isMember) {
                             return [3 /*break*/, 6];
                         }
-                        groupInvitesQouery = new node_1.default.Query(node_1.default.Object.extend('GroupInvites'));
-                        groupInvitesQouery.equalTo('email', email);
-                        groupInvitesQouery.equalTo('groupId', groupId);
-                        return [4 /*yield*/, groupInvitesQouery.find()];
+                        return [4 /*yield*/, GroupInvite_1.default.find({
+                                email: email,
+                                groupId: groupId,
+                            })];
                     case 5:
-                        foundGroupInvites = _b.sent();
+                        foundGroupInvites = _a.sent();
                         foundGroupInvites.forEach(function (invite) { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
-                                    case 0: return [4 /*yield*/, invite.destroy()];
+                                    case 0: return [4 /*yield*/, GroupInvite_1.default.findByIdAndRemove(invite._id)];
                                     case 1:
                                         _a.sent();
                                         return [2 /*return*/];
@@ -385,12 +366,12 @@ var GroupControllers = /** @class */ (function () {
                             });
                         }); });
                         inviteObj = {
-                            userId: foundUser.id,
-                            groupId: foundGroup_1.id,
-                            email: foundUser.get('username'),
+                            userId: foundUser._id,
+                            groupId: foundGroup_1._id,
+                            email: foundUser.email,
                         };
                         cleanEmailList.push(inviteObj);
-                        _b.label = 6;
+                        _a.label = 6;
                     case 6:
                         i++;
                         return [3 /*break*/, 2];
@@ -405,8 +386,7 @@ var GroupControllers = /** @class */ (function () {
                                         customURL = "/groups/" + foundGroup_1.id + "/join?email=" + invite.email + "&token=" + token;
                                         joinLink = "" + baseURL + customURL;
                                         message = "\n          <h1>You have received an group invitation to " + foundGroup_1.get('title') + "</h1>\n          <p>Click on the link below to join</p>\n          <p>OR make PUT request to " + customURL + "</p>\n          <a href=\"" + joinLink + "\" clicktracking=off>Join Group</a>\n        ";
-                                        groupInvite = new node_1.default.Object('GroupInvites');
-                                        groupInvite.set({
+                                        groupInvite = new GroupInvite_1.default({
                                             email: invite.email,
                                             groupId: invite.groupId,
                                             token: token,
@@ -417,7 +397,7 @@ var GroupControllers = /** @class */ (function () {
                                         // Send Email
                                         EmailingServices_1.EmailServices.sendEmail({
                                             to: invite.email,
-                                            subject: "Group Invite From " + foundGroup_1.get('title'),
+                                            subject: "Group Invite From " + foundGroup_1.title,
                                             text: message,
                                         });
                                         return [2 /*return*/];
@@ -430,7 +410,7 @@ var GroupControllers = /** @class */ (function () {
                         });
                         return [3 /*break*/, 9];
                     case 8:
-                        error_6 = _b.sent();
+                        error_6 = _a.sent();
                         // handle error
                         next(error_6);
                         return [3 /*break*/, 9];
@@ -441,41 +421,38 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.joinGroup = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, token, groupId, groupInviteQuery, foundGroupInvite, userQuery, foundUser, groupMember, error_7;
+            var _a, email, token, groupId, foundGroupInvite, foundUser, groupMember, error_7;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 5, , 6]);
                         _a = req.query, email = _a.email, token = _a.token;
                         groupId = req.params.groupId;
-                        groupInviteQuery = new node_1.default.Query(node_1.default.Object.extend('GroupInvites'));
-                        groupInviteQuery.equalTo('email', email);
-                        groupInviteQuery.equalTo('groupId', groupId);
-                        groupInviteQuery.equalTo('token', token);
-                        return [4 /*yield*/, groupInviteQuery.first()];
+                        return [4 /*yield*/, GroupInvite_1.default.findOne({
+                                email: email,
+                                groupId: groupId,
+                                token: token,
+                            })];
                     case 1:
                         foundGroupInvite = _b.sent();
                         if (!foundGroupInvite) {
                             return [2 /*return*/, next(new BaseException_1.BaseException('You where not invited, sorry!', 404))];
                         }
-                        userQuery = new node_1.default.Query(node_1.default.User);
-                        userQuery.equalTo('email', email);
-                        return [4 /*yield*/, userQuery.first()];
+                        return [4 /*yield*/, User_1.default.findOne({ email: email })];
                     case 2:
                         foundUser = _b.sent();
                         if (!foundUser) {
                             return [2 /*return*/, next(new BaseException_1.BaseException("No user with email " + email + " was found", 404))];
                         }
-                        groupMember = new node_1.default.Object('GroupMembers');
-                        groupMember.set({
-                            userId: foundUser.id,
+                        groupMember = new GroupMember_1.default({
+                            userId: foundUser._id,
                             groupId: groupId,
                         });
                         return [4 /*yield*/, groupMember.save()];
                     case 3:
                         _b.sent();
                         // Destroy Invite once user is joined
-                        return [4 /*yield*/, foundGroupInvite.destroy()];
+                        return [4 /*yield*/, GroupInvite_1.default.findByIdAndRemove(foundGroupInvite._id)];
                     case 4:
                         // Destroy Invite once user is joined
                         _b.sent();
@@ -496,24 +473,24 @@ var GroupControllers = /** @class */ (function () {
     };
     GroupControllers.leaveGroup = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var groupId, userId, groupMemberQuery, foundGroupMember, error_8;
+            var groupId, userId, foundGroupMember, error_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
                         groupId = req.params.groupId;
                         userId = req.headers['userId'];
-                        groupMemberQuery = new node_1.default.Query(node_1.default.Object.extend('GroupMembers'));
-                        groupMemberQuery.equalTo('userId', userId);
-                        groupMemberQuery.equalTo('groupId', groupId);
-                        return [4 /*yield*/, groupMemberQuery.first()];
+                        return [4 /*yield*/, GroupMember_1.default.findOne({
+                                userId: userId,
+                                groupId: groupId,
+                            })];
                     case 1:
                         foundGroupMember = _a.sent();
                         if (!foundGroupMember) {
                             return [2 /*return*/, next(new BaseException_1.BaseException("User " + userId + " was never joined to group " + groupId, 400))];
                         }
                         // Detroy the link between user and group
-                        return [4 /*yield*/, foundGroupMember.destroy()];
+                        return [4 /*yield*/, GroupMember_1.default.findByIdAndRemove(foundGroupMember._id)];
                     case 2:
                         // Detroy the link between user and group
                         _a.sent();

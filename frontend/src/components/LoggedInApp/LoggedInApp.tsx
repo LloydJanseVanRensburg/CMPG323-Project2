@@ -22,12 +22,12 @@ import { personOutline, peopleOutline } from 'ionicons/icons';
 import Group from '../../pages/GroupPage/Group';
 import Groups from '../../pages/GroupsPage/Groups';
 import Home from '../../pages/HomePage/Home';
-import { AuthContext } from '../../context/authContext/authContext';
+import { AuthContext } from '../../context/Auth/authContext';
 
 const LoggedInApp = () => {
-  const { loggedIn } = useContext(AuthContext);
+  const { isLoggedIn } = useContext(AuthContext);
 
-  if (!loggedIn) {
+  if (!isLoggedIn) {
     return <Redirect to="/login" />;
   }
 

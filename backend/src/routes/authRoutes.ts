@@ -9,11 +9,6 @@ const router = express.Router();
 // @access Private
 router.get('/logged-in', AuthMiddleware.auth, AuthControllers.loggedInUser);
 
-// @route /api/v1/auth/logout
-// @desc - GET logout and delete user session
-// @access Private
-router.get('/logout', AuthMiddleware.auth, AuthControllers.logout);
-
 // @route /api/v1/auth/login
 // @desc - POST authenticate user and return access token
 // @access Public

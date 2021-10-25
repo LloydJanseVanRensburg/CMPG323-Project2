@@ -1,7 +1,12 @@
-import Parse from 'parse/node';
+// 3rd Party Modules
 import { Request, Response, NextFunction } from 'express';
-import { BaseException } from '../modules/BaseException';
 import jwt from 'jsonwebtoken';
+
+// Custom Error
+import { BaseException } from '../modules/BaseException';
+
+// User Model
+import User from '../models/User';
 
 export class AuthMiddleware {
   static async auth(req: Request, res: Response, next: NextFunction) {
@@ -14,25 +19,17 @@ export class AuthMiddleware {
     try {
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-      const query = new Parse.Query(Parse.Session);
-      query.equalTo('sessionToken', decoded.sessionToken);
+      const user = await User.findById(decoded.userId);
 
-      const result = await query.first({ useMasterKey: true });
+      // TODO:  More  security  check
+      // 1) Banned user
+      // 2) Reset password date vs token issued date
 
-      if (!result) {
-        return next(
-          new BaseException('No session found please login again', 404)
-        );
-      }
-
-      const user = result.get('user');
-
-      if (user.id !== decoded.userId) {
+      if (!user) {
         return next(new BaseException('Access denied not authorized', 401));
       }
 
-      req.headers['userId'] = decoded.userId;
-      req.headers['sessionToken'] = decoded.sessionToken;
+      req.headers['userId'] = user._id;
 
       next();
     } catch (error: any) {

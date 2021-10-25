@@ -2,7 +2,7 @@
 import { useState, useContext } from 'react';
 
 // Context
-import { AuthContext } from '../../context/authContext/authContext';
+import { AuthContext } from '../../context/Auth/authContext';
 
 // Ionic Components
 import {
@@ -22,10 +22,6 @@ import {
 // Ionic Icons
 import { closeOutline } from 'ionicons/icons';
 
-// Axios & Modules
-import axios from 'axios';
-import { config } from '../../constants/config';
-
 // Helper Functions
 import {
   validatePassword,
@@ -38,27 +34,30 @@ import './Register.css';
 import { Redirect } from 'react-router';
 
 const Register = () => {
-  const { loggedIn } = useContext(AuthContext);
+  const {
+    isLoggedIn,
+    registerUser,
+    registerUserLoading,
+    registerUserError,
+    setRegisterUserError,
+  } = useContext(AuthContext);
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const registerHandler = async () => {
     if (!validateEmail(email)) {
-      return setError('Invalid Email');
+      return setRegisterUserError('Invalid Email');
     }
 
     if (!validatePassword(password)) {
-      return setError('Password should be min of 6 characters');
+      return setRegisterUserError('Password should be min of 6 characters');
     }
 
     if (!checkPasswordMatch(password, confirmPassword)) {
-      return setError('Passwords does not match');
+      return setRegisterUserError('Passwords does not match');
     }
 
     let data = {
@@ -67,39 +66,10 @@ const Register = () => {
       password,
     };
 
-    let axiosConfig = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    try {
-      setLoading(true);
-
-      const result: any = await axios.post(
-        `${config.apiURL}/auth/register`,
-        data,
-        axiosConfig
-      );
-
-      if (result.data.success) {
-        console.log(result.data.token);
-        localStorage.setItem('authToken', result.data.data.token);
-      }
-
-      setLoading(false);
-    } catch (error: any) {
-      console.trace(error);
-      if (error.response && error.response.data) {
-        setError(error.response.data.message);
-      } else {
-        setError('Something went wrong please try again later');
-      }
-      setLoading(false);
-    }
+    await registerUser(data);
   };
 
-  if (loggedIn) {
+  if (isLoggedIn) {
     return <Redirect to="/my/account" />;
   }
 
@@ -112,9 +82,9 @@ const Register = () => {
       </IonHeader>
       <IonContent fullscreen>
         <IonToast
-          isOpen={error !== ''}
-          onDidDismiss={() => setError('')}
-          message={error}
+          isOpen={registerUserError !== ''}
+          onDidDismiss={() => registerUserError('')}
+          message={registerUserError}
           color="danger"
           duration={5000}
           buttons={[
@@ -123,7 +93,7 @@ const Register = () => {
               role: 'cancel',
               icon: closeOutline,
               handler: () => {
-                setError('');
+                registerUserError('');
               },
             },
           ]}
@@ -167,12 +137,12 @@ const Register = () => {
           </IonItem>
 
           <IonButton
-            disabled={loading}
+            disabled={registerUserLoading}
             expand="full"
             color="primary"
             onClick={registerHandler}
           >
-            {loading ? <IonSpinner name="circles" /> : 'Register'}
+            {registerUserLoading ? <IonSpinner name="circles" /> : 'Register'}
           </IonButton>
 
           <div className="form_or">
@@ -181,7 +151,7 @@ const Register = () => {
           </div>
 
           <IonButton
-            disabled={loading}
+            disabled={registerUserLoading}
             routerLink="/login"
             expand="full"
             color="dark"

@@ -6,72 +6,106 @@ import {
   IonAvatar,
   IonButton,
   IonButtons,
+  IonCol,
   IonContent,
+  IonGrid,
   IonHeader,
+  IonIcon,
   IonItem,
+  IonItemDivider,
   IonLabel,
   IonList,
-  IonListHeader,
-  IonMenuButton,
   IonPage,
+  IonPopover,
+  IonRow,
   IonSpinner,
+  IonText,
   IonTitle,
   IonToast,
   IonToolbar,
 } from '@ionic/react';
 
 // Ionic Icons
-import { closeOutline } from 'ionicons/icons';
+import {
+  closeOutline,
+  ellipsisHorizontal,
+  ellipsisVertical,
+} from 'ionicons/icons';
 
 // Context
-import { AuthContext } from '../../context/authContext/authContext';
+import { AuthContext } from '../../context/Auth/authContext';
 
 // Styling & Assets
 import './Home.css';
 
 // Axios & Modules
-import axios from 'axios';
 import { config } from '../../constants/config';
 
 const Home: React.FC = () => {
-  const { setLoggedIn, userData } = useContext(AuthContext);
+  // const [showPopover, setShowPopover] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const {
+    userData,
+    logoutUser,
+    logoutUserError,
+    logoutUserLoading,
+    setLogoutUserError,
+  } = useContext(AuthContext);
+
+  const [popoverState, setShowPopover] = useState({
+    showPopover: false,
+    event: undefined,
+  });
 
   const logoutHandler = async () => {
-    let token = localStorage.getItem('authToken');
-    try {
-      setLoading(true);
-      await axios.get(`${config.apiURL}/auth/logout`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      localStorage.removeItem('authToken');
-      setLoading(false);
-      setLoggedIn(false);
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        setError(error.response.data.message);
-      }
-      setLoading(false);
-    }
+    await logoutUser();
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonMenuButton color="primary" menu="main-content"></IonMenuButton>
-          </IonButtons>
           <IonTitle>Account</IonTitle>
+
+          <IonButtons slot="end">
+            <IonButton
+              onClick={(e: any) => {
+                e.persist();
+                setShowPopover({ showPopover: true, event: e });
+              }}
+            >
+              <IonIcon
+                slot="icon-only"
+                ios={ellipsisHorizontal}
+                md={ellipsisVertical}
+              ></IonIcon>
+            </IonButton>
+          </IonButtons>
+
+          <IonPopover
+            cssClass="my-custom-class"
+            event={popoverState.event}
+            isOpen={popoverState.showPopover}
+            onDidDismiss={() =>
+              setShowPopover({ showPopover: false, event: undefined })
+            }
+          >
+            <IonList>
+              <IonItem>
+                <IonLabel>Edit Account</IonLabel>
+              </IonItem>
+              <IonItem>
+                <IonLabel>Logout</IonLabel>
+              </IonItem>
+            </IonList>
+          </IonPopover>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
         <IonToast
-          isOpen={error !== ''}
-          onDidDismiss={() => setError('')}
-          message={error}
+          isOpen={logoutUserError !== ''}
+          onDidDismiss={() => setLogoutUserError('')}
+          message={logoutUserError}
           color="danger"
           duration={5000}
           buttons={[
@@ -80,11 +114,15 @@ const Home: React.FC = () => {
               role: 'cancel',
               icon: closeOutline,
               handler: () => {
-                setError('');
+                setLogoutUserError('');
               },
             },
           ]}
         />
+
+        <IonItemDivider>
+          <IonLabel>Account Info</IonLabel>
+        </IonItemDivider>
 
         <div className="home__accountPfp">
           <IonAvatar slot="start">
@@ -96,34 +134,66 @@ const Home: React.FC = () => {
         </div>
 
         <div className="home__accountInfo">
-          <p>Lloyd Janse van Rensburg</p>
-          <p>lloydjvrensburg@gmail.com</p>
-          <p>083 444 6352</p>
+          <IonGrid>
+            <IonRow>
+              <IonCol>
+                <IonText>User Name:</IonText>
+              </IonCol>
+              <IonCol>
+                <IonText>{userData.name}</IonText>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
+                <IonText>Email Address:</IonText>
+              </IonCol>
+              <IonCol>
+                <IonText>{userData.email}</IonText>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
+                <IonText>Phone Number:</IonText>
+              </IonCol>
+              <IonCol>
+                <IonText>{userData.phone}</IonText>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
         </div>
+
+        {/* <IonItemDivider>
+          <IonLabel>Account Settings</IonLabel>
+        </IonItemDivider>
 
         <div className="home__accountLogout">
-          <IonButton disabled={loading} color="primary">
+          <IonButton disabled={logoutUserLoading} color="primary">
             Edit
           </IonButton>
-          <IonButton disabled={loading} color="danger" onClick={logoutHandler}>
-            {loading ? <IonSpinner name="circles" /> : 'Logout'}
+          <IonButton
+            disabled={logoutUserLoading}
+            color="danger"
+            onClick={logoutHandler}
+          >
+            {logoutUserLoading ? <IonSpinner name="circles" /> : 'Logout'}
           </IonButton>
-        </div>
+        </div> */}
+
+        <IonItemDivider>
+          <IonLabel>Account Notifications</IonLabel>
+        </IonItemDivider>
 
         <IonList>
-          <IonListHeader>
-            <IonLabel>Notifications</IonLabel>
-          </IonListHeader>
-          {/* <IonItem>
+          <IonItem>
             <IonAvatar slot="start">
-              <img src="./avatar-finn.png" alt="" />
+              <img src="./avatar-han.png" alt="" />
             </IonAvatar>
             <IonLabel>
-              <h2>Finn</h2>
-              <h3>I'm a big deal</h3>
-              <p>Listen, I've had a pretty messed up day...</p>
+              <h5>Han</h5>
+              <h2>Why is this here?</h2>
+              <small>2 days ago</small>
             </IonLabel>
-          </IonItem> */}
+          </IonItem>
         </IonList>
       </IonContent>
     </IonPage>

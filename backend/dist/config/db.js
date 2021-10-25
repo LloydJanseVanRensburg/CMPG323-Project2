@@ -39,53 +39,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthMiddleware = void 0;
-var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-// Custom Error
-var BaseException_1 = require("../modules/BaseException");
-// User Model
-var User_1 = __importDefault(require("../models/User"));
-var AuthMiddleware = /** @class */ (function () {
-    function AuthMiddleware() {
-    }
-    AuthMiddleware.auth = function (req, res, next) {
-        return __awaiter(this, void 0, void 0, function () {
-            var token, decoded, user, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!req.headers.authorization) {
-                            return [2 /*return*/, next(new BaseException_1.BaseException('Access denied not authorized', 401))];
-                        }
-                        token = req.headers.authorization.split(' ')[1];
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-                        return [4 /*yield*/, User_1.default.findById(decoded.userId)];
-                    case 2:
-                        user = _a.sent();
-                        // TODO:  More  security  check
-                        // 1) Banned user
-                        // 2) Reset password date vs token issued date
-                        if (!user) {
-                            return [2 /*return*/, next(new BaseException_1.BaseException('Access denied not authorized', 401))];
-                        }
-                        req.headers['userId'] = user._id;
-                        next();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _a.sent();
-                        if (error_1.message === 'jwt malformed') {
-                            return [2 /*return*/, next(new BaseException_1.BaseException('Access denied invalid token', 401))];
-                        }
-                        next(error_1);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return AuthMiddleware;
-}());
-exports.AuthMiddleware = AuthMiddleware;
+exports.connectDB = void 0;
+var mongoose_1 = __importDefault(require("mongoose"));
+var connectDB = function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        try {
+            mongoose_1.default.connect(process.env.MONGO_CONNECT_URI, {});
+            console.log('MongoDB Connected');
+        }
+        catch (error) {
+            console.log(error);
+            process.exit(1);
+        }
+        return [2 /*return*/];
+    });
+}); };
+exports.connectDB = connectDB;

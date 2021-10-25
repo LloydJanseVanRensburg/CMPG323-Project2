@@ -1,40 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { BaseException } from '../modules/BaseException';
+import { AuthenticationService } from '../services/AuthenticationService';
+import { RegisterObject } from '../interfaces/interfaces';
 import {
   validateLoginAuthBody,
   validateRegisterAuthBody,
 } from '../utils/functions';
-import { AuthenticationService } from '../services/AuthenticationService';
-import Parse from 'parse/node';
+import User from '../models/User';
 
 export class AuthControllers {
-  static async logout(req: Request, res: Response, next: NextFunction) {
-    // Handle session delete
-    const sessionToken = req.headers['sessionToken'] as string;
-
-    try {
-      Parse.User.enableUnsafeCurrentUser();
-      await Parse.User.become(sessionToken);
-      await Parse.User.logOut();
-
-      res.status(200).json({
-        success: true,
-        message: 'User logged out',
-      });
-    } catch (error: any) {
-      next(error);
-    }
-  }
-
   static async loggedInUser(req: Request, res: Response, next: NextFunction) {
     try {
       let userId = req.headers['userId'];
-      let sessionToken = req.headers['sessionToken'];
 
-      const query = new Parse.Query(Parse.User);
-      query.equalTo('objectId', userId);
-
-      const user = await query.first({ useMasterKey: true });
+      const user = await User.findById(userId);
 
       if (!user) {
         return next(new BaseException('User not found', 404));
@@ -44,11 +23,10 @@ export class AuthControllers {
         success: true,
         data: {
           user: {
-            id: user.id,
-            username: user.get('name'),
-            email: user.get('email'),
-            sessionToken: sessionToken,
-            profilePicture: user.get('profilePicture'),
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            profilePicture: user.profilePicture,
           },
         },
       });
@@ -59,6 +37,7 @@ export class AuthControllers {
 
   static async login(req: Request, res: Response, next: NextFunction) {
     try {
+      // Validate Login Request body
       if (!validateLoginAuthBody(req.body)) {
         return next(
           new BaseException('Please provide all email and password', 400)
@@ -68,37 +47,47 @@ export class AuthControllers {
       // Email  and Password Required for login
       let { email, password } = req.body;
 
+      // Login Service
       const data = await AuthenticationService.login({ email, password });
 
+      // Respond to client login data
       res.status(200).json(data);
     } catch (error: any) {
+      // Handle Error
       next(new BaseException(error.message, error.statusCode));
     }
   }
 
   static async register(req: Request, res: Response, next: NextFunction) {
     try {
+      // Validate Request Body
       if (!validateRegisterAuthBody(req.body)) {
         return next(
           new BaseException('Please provide all email and password', 400)
         );
       }
 
-      // Email, Username, Password, ProfileImgURL
-      let { email, username, password, profilePicture } = req.body;
+      // Email, Username, Password, ProfilePicture
+      let registerBody: RegisterObject = req.body;
+
+      // Let pfp
+      let profilePicture =
+        registerBody.profilePicture ?? 'ea83409a099cfe26db0a435faf362b31';
 
       let registerData = {
-        email,
-        username: email,
-        name: username,
-        password,
-        profilePicture: profilePicture ?? 'ea83409a099cfe26db0a435faf362b31',
+        email: registerBody.email,
+        username: registerBody.username,
+        password: registerBody.password,
+        profilePicture,
       };
 
+      // Register Service
       const data = await AuthenticationService.register(registerData);
 
+      // Respond to client with register data
       res.status(200).json(data);
     } catch (error: any) {
+      // Handle error
       next(new BaseException(error.message, error.statusCode));
     }
   }

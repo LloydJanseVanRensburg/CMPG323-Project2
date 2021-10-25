@@ -40,27 +40,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthenticationService = void 0;
-var node_1 = __importDefault(require("parse/node"));
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var BaseException_1 = require("../modules/BaseException");
+var User_1 = __importDefault(require("../models/User"));
+var bcryptjs_1 = __importDefault(require("bcryptjs"));
 var AuthenticationService = /** @class */ (function () {
     function AuthenticationService() {
     }
     AuthenticationService.login = function (data) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var result, sessionToken, payload, token, error_1;
+            var user, isMatch, payload, token, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, node_1.default.User.logIn(data.email, data.password)];
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, User_1.default.findOne({ email: data.email })];
                     case 1:
-                        result = _a.sent();
-                        sessionToken = result.getSessionToken();
+                        user = _a.sent();
+                        if (!user) {
+                            return [2 /*return*/, reject(new BaseException_1.BaseException('Invalid email or password', 401))];
+                        }
+                        return [4 /*yield*/, bcryptjs_1.default.compare(data.password, user.password)];
+                    case 2:
+                        isMatch = _a.sent();
+                        if (!isMatch) {
+                            return [2 /*return*/, reject(new BaseException_1.BaseException('Invalid email or password', 401))];
+                        }
                         payload = {
-                            userId: result.id,
-                            sessionToken: sessionToken,
+                            userId: user._id,
                         };
                         token = jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, {
                             expiresIn: '1d',
@@ -70,71 +78,81 @@ var AuthenticationService = /** @class */ (function () {
                             data: {
                                 token: token,
                                 user: {
-                                    id: result.id,
-                                    username: result.get('name'),
-                                    email: result.get('email'),
-                                    profilePicture: result.get('profilePicture'),
+                                    id: user._id,
+                                    username: user.username,
+                                    email: user.email,
+                                    profilePicture: user.profilePicture,
                                 },
                             },
                         });
-                        return [3 /*break*/, 3];
-                    case 2:
+                        return [3 /*break*/, 4];
+                    case 3:
                         error_1 = _a.sent();
                         console.log(error_1.message);
                         if (error_1.message === 'jwt expires') {
                             reject(new BaseException_1.BaseException('Token has expired', 401));
                         }
-                        else if (error_1.message === 'Invalid username/password.') {
-                            console.log('fired');
-                            reject(new BaseException_1.BaseException('Invalid email or password', 400));
-                        }
                         else {
                             reject(error_1);
                         }
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); });
     };
     AuthenticationService.register = function (data) {
         var _this = this;
-        var user = new node_1.default.User();
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var result, payload, token, error_2;
+            var foundUser, hashedPassword, user, newUser, payload, token, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        user.set(data);
-                        return [4 /*yield*/, user.signUp()];
+                        _a.trys.push([0, 4, , 5]);
+                        return [4 /*yield*/, User_1.default.findOne({ email: data.email })];
                     case 1:
-                        result = _a.sent();
+                        foundUser = _a.sent();
+                        if (foundUser) {
+                            return [2 /*return*/, reject(new BaseException_1.BaseException('User already exsists with this email', 400))];
+                        }
+                        return [4 /*yield*/, bcryptjs_1.default.hash(data.password, 12)];
+                    case 2:
+                        hashedPassword = _a.sent();
+                        user = new User_1.default({
+                            username: data.username,
+                            email: data.email,
+                            password: hashedPassword,
+                            profilePicture: data.profilePicture,
+                        });
+                        return [4 /*yield*/, user.save()];
+                    case 3:
+                        newUser = _a.sent();
                         payload = {
-                            userId: result.id,
-                            sessionToken: result.getSessionToken(),
+                            userId: newUser._id,
                         };
                         token = jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, {
                             expiresIn: '1d',
                         });
+                        // Resolve with register data
                         resolve({
                             success: true,
                             data: {
                                 token: token,
                                 user: {
-                                    id: result.id,
-                                    username: result.get('name'),
-                                    email: result.get('email'),
-                                    profilePicture: result.get('profilePicture'),
+                                    id: newUser._id,
+                                    username: newUser.username,
+                                    email: newUser.email,
+                                    profilePicture: newUser.profilePicture,
                                 },
                             },
                         });
-                        return [3 /*break*/, 3];
-                    case 2:
+                        return [3 /*break*/, 5];
+                    case 4:
                         error_2 = _a.sent();
+                        // Reject with Error
                         reject(error_2);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
                 }
             });
         }); });

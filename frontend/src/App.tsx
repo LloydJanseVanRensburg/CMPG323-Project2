@@ -1,8 +1,8 @@
 // Core React
-import { useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 
 // Context
-import { AuthContext } from './context/authContext/authContext';
+import { AuthContext } from './context/Auth/authContext';
 // React Router Dom
 import { Route, Redirect } from 'react-router-dom';
 
@@ -16,63 +16,36 @@ import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
 import LoggedInApp from './components/LoggedInApp/LoggedInApp';
 import Login from './pages/LoginPage/Login';
 import Register from './pages/RegisterPage/Register';
-import axios from 'axios';
-import { config } from './constants/config';
-import { UserAccountData } from './interfaces/interfaces';
 
 const App: React.FC = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState<UserAccountData>();
+  const { getUserLoading, getCurrentUserFromToken } = useContext(AuthContext);
 
   useEffect(() => {
     if (localStorage.getItem('authToken')) {
-      setLoading(true);
-      axios
-        .get(`${config.apiURL}/auth/logged-in`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-          },
-        })
-        .then(() => {
-          setLoggedIn(true);
-          setLoading(false);
-        })
-        .catch(() => {
-          localStorage.removeItem('authToken');
-          setLoggedIn(false);
-          setLoading(false);
-        });
+      getCurrentUserFromToken();
     }
-  }, []);
+  }, [getCurrentUserFromToken]);
+
+  if (getUserLoading) {
+    return <IonLoading isOpen />;
+  }
 
   return (
     <IonApp>
-      <IonLoading isOpen={loading} />
-      <AuthContext.Provider
-        value={{
-          loggedIn,
-          userData,
-          setUserData,
-          setLoggedIn,
-          setLoading,
-        }}
-      >
-        <IonReactRouter>
-          <IonRouterOutlet>
-            <Route exact path="/login">
-              <Login />
-            </Route>
-            <Route exact path="/register">
-              <Register />
-            </Route>
-            <Route path="/my">
-              <LoggedInApp />
-            </Route>
-            <Redirect exact path="/" to="/my/account" />
-          </IonRouterOutlet>
-        </IonReactRouter>
-      </AuthContext.Provider>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Route exact path="/login">
+            <Login />
+          </Route>
+          <Route exact path="/register">
+            <Register />
+          </Route>
+          <Route path="/my">
+            <LoggedInApp />
+          </Route>
+          <Redirect exact path="/" to="/my/account" />
+        </IonRouterOutlet>
+      </IonReactRouter>
     </IonApp>
   );
 };

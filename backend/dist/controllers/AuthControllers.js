@@ -41,55 +41,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthControllers = void 0;
 var BaseException_1 = require("../modules/BaseException");
-var functions_1 = require("../utils/functions");
 var AuthenticationService_1 = require("../services/AuthenticationService");
-var node_1 = __importDefault(require("parse/node"));
+var functions_1 = require("../utils/functions");
+var User_1 = __importDefault(require("../models/User"));
 var AuthControllers = /** @class */ (function () {
     function AuthControllers() {
     }
-    AuthControllers.logout = function (req, res, next) {
-        return __awaiter(this, void 0, void 0, function () {
-            var sessionToken, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        sessionToken = req.headers['sessionToken'];
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 4, , 5]);
-                        node_1.default.User.enableUnsafeCurrentUser();
-                        return [4 /*yield*/, node_1.default.User.become(sessionToken)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, node_1.default.User.logOut()];
-                    case 3:
-                        _a.sent();
-                        res.status(200).json({
-                            success: true,
-                            message: 'User logged out',
-                        });
-                        return [3 /*break*/, 5];
-                    case 4:
-                        error_1 = _a.sent();
-                        next(error_1);
-                        return [3 /*break*/, 5];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        });
-    };
     AuthControllers.loggedInUser = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId, sessionToken, query, user, error_2;
+            var userId, user, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         userId = req.headers['userId'];
-                        sessionToken = req.headers['sessionToken'];
-                        query = new node_1.default.Query(node_1.default.User);
-                        query.equalTo('objectId', userId);
-                        return [4 /*yield*/, query.first({ useMasterKey: true })];
+                        return [4 /*yield*/, User_1.default.findById(userId)];
                     case 1:
                         user = _a.sent();
                         if (!user) {
@@ -99,18 +65,17 @@ var AuthControllers = /** @class */ (function () {
                             success: true,
                             data: {
                                 user: {
-                                    id: user.id,
-                                    username: user.get('name'),
-                                    email: user.get('email'),
-                                    sessionToken: sessionToken,
-                                    profilePicture: user.get('profilePicture'),
+                                    id: user._id,
+                                    username: user.username,
+                                    email: user.email,
+                                    profilePicture: user.profilePicture,
                                 },
                             },
                         });
                         return [3 /*break*/, 3];
                     case 2:
-                        error_2 = _a.sent();
-                        next(error_2);
+                        error_1 = _a.sent();
+                        next(error_1);
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -119,11 +84,12 @@ var AuthControllers = /** @class */ (function () {
     };
     AuthControllers.login = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, password, data, error_3;
+            var _a, email, password, data, error_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 2, , 3]);
+                        // Validate Login Request body
                         if (!functions_1.validateLoginAuthBody(req.body)) {
                             return [2 /*return*/, next(new BaseException_1.BaseException('Please provide all email and password', 400))];
                         }
@@ -131,11 +97,13 @@ var AuthControllers = /** @class */ (function () {
                         return [4 /*yield*/, AuthenticationService_1.AuthenticationService.login({ email: email, password: password })];
                     case 1:
                         data = _b.sent();
+                        // Respond to client login data
                         res.status(200).json(data);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_3 = _b.sent();
-                        next(new BaseException_1.BaseException(error_3.message, error_3.statusCode));
+                        error_2 = _b.sent();
+                        // Handle Error
+                        next(new BaseException_1.BaseException(error_2.message, error_2.statusCode));
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -143,31 +111,35 @@ var AuthControllers = /** @class */ (function () {
         });
     };
     AuthControllers.register = function (req, res, next) {
+        var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, username, password, profilePicture, registerData, data, error_4;
+            var registerBody, profilePicture, registerData, data, error_3;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 2, , 3]);
+                        // Validate Request Body
                         if (!functions_1.validateRegisterAuthBody(req.body)) {
                             return [2 /*return*/, next(new BaseException_1.BaseException('Please provide all email and password', 400))];
                         }
-                        _a = req.body, email = _a.email, username = _a.username, password = _a.password, profilePicture = _a.profilePicture;
+                        registerBody = req.body;
+                        profilePicture = (_a = registerBody.profilePicture) !== null && _a !== void 0 ? _a : 'ea83409a099cfe26db0a435faf362b31';
                         registerData = {
-                            email: email,
-                            username: email,
-                            name: username,
-                            password: password,
-                            profilePicture: profilePicture !== null && profilePicture !== void 0 ? profilePicture : 'ea83409a099cfe26db0a435faf362b31',
+                            email: registerBody.email,
+                            username: registerBody.username,
+                            password: registerBody.password,
+                            profilePicture: profilePicture,
                         };
                         return [4 /*yield*/, AuthenticationService_1.AuthenticationService.register(registerData)];
                     case 1:
                         data = _b.sent();
+                        // Respond to client with register data
                         res.status(200).json(data);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_4 = _b.sent();
-                        next(new BaseException_1.BaseException(error_4.message, error_4.statusCode));
+                        error_3 = _b.sent();
+                        // Handle error
+                        next(new BaseException_1.BaseException(error_3.message, error_3.statusCode));
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }

@@ -1,30 +1,27 @@
-import Parse from 'parse/node';
 import jwt from 'jsonwebtoken';
 import { BaseException } from '../modules/BaseException';
-import { nextTick } from 'process';
-
-interface RegisterObject {
-  username: string;
-  email: string;
-  password: string;
-  profilePrictureUrl?: string;
-}
-
-interface LoginObject {
-  email: string;
-  password: string;
-}
+import User from '../models/User';
+import bcrypt from 'bcryptjs';
+import { LoginObject, RegisterObject } from '../interfaces/interfaces';
 
 export class AuthenticationService {
   static login(data: LoginObject) {
     return new Promise(async (resolve, reject) => {
       try {
-        const result = await Parse.User.logIn(data.email, data.password);
-        const sessionToken = result.getSessionToken();
+        const user = await User.findOne({ email: data.email });
+
+        if (!user) {
+          return reject(new BaseException('Invalid email or password', 401));
+        }
+
+        const isMatch = await bcrypt.compare(data.password, user.password);
+
+        if (!isMatch) {
+          return reject(new BaseException('Invalid email or password', 401));
+        }
 
         const payload = {
-          userId: result.id,
-          sessionToken: sessionToken,
+          userId: user._id,
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET!, {
@@ -36,10 +33,10 @@ export class AuthenticationService {
           data: {
             token: token,
             user: {
-              id: result.id,
-              username: result.get('name'),
-              email: result.get('email'),
-              profilePicture: result.get('profilePicture'),
+              id: user._id,
+              username: user.username,
+              email: user.email,
+              profilePicture: user.profilePicture,
             },
           },
         });
@@ -47,9 +44,6 @@ export class AuthenticationService {
         console.log(error.message);
         if (error.message === 'jwt expires') {
           reject(new BaseException('Token has expired', 401));
-        } else if (error.message === 'Invalid username/password.') {
-          console.log('fired');
-          reject(new BaseException('Invalid email or password', 400));
         } else {
           reject(error);
         }
@@ -58,36 +52,53 @@ export class AuthenticationService {
   }
 
   static register(data: RegisterObject) {
-    const user = new Parse.User();
-
     return new Promise(async (resolve, reject) => {
       try {
-        user.set(data);
+        // Check user don't exists already
+        const foundUser = await User.findOne({ email: data.email });
 
-        const result = await user.signUp();
+        if (foundUser) {
+          return reject(
+            new BaseException('User already exsists with this email', 400)
+          );
+        }
 
+        // Hash password
+        let hashedPassword = await bcrypt.hash(data.password, 12);
+
+        // Save  user
+        const user = new User({
+          username: data.username,
+          email: data.email,
+          password: hashedPassword,
+          profilePicture: data.profilePicture,
+        });
+        const newUser = await user.save();
+
+        // Creating and Sign JWT
         const payload = {
-          userId: result.id,
-          sessionToken: result.getSessionToken(),
+          userId: newUser._id,
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET!, {
           expiresIn: '1d',
         });
 
+        // Resolve with register data
         resolve({
           success: true,
           data: {
             token: token,
             user: {
-              id: result.id,
-              username: result.get('name'),
-              email: result.get('email'),
-              profilePicture: result.get('profilePicture'),
+              id: newUser._id,
+              username: newUser.username,
+              email: newUser.email,
+              profilePicture: newUser.profilePicture,
             },
           },
         });
       } catch (error: any) {
+        // Reject with Error
         reject(error);
       }
     });

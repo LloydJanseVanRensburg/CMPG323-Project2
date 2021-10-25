@@ -11,7 +11,10 @@
 }
 
 .home__accountInfo {
-  text-align: center;
+  width: 90%;
+  margin: auto;
+  max-width: 400px;
+  padding: 8px;
 }
 
 .home__accountLogout {

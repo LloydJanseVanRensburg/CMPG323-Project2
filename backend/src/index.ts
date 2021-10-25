@@ -1,49 +1,52 @@
+// ENV Variables served to app
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Core Node
 import fs from 'fs';
 import util from 'util';
+
+// 3rd Party Modules
 import express, { Request, Response } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+
+// Custom Middleware
 import apiErrorHandler from './middleware/apiErrorHandler';
-import initParse from './utils/initParse';
+
+// Route Imports
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import groupRoutes from './routes/groupRoutes';
 import postRoutes from './routes/postRoutes';
-import { getFileStream } from './middleware/FileUploadMiddleware';
+import imageRoutes from './routes/imageRoutes';
+
+// DB Connection Function
+import { connectDB } from './config/db';
 
 export const unlinkFile = util.promisify(fs.unlink);
 
+// Init Express App
 const app = express();
 
+// Set up basic middlewares
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+// App Routing Middleware
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/groups', groupRoutes);
 app.use('/api/v1/posts', postRoutes);
+app.use('/api/v1/image', imageRoutes);
 
-// Loading All Image Request From AWS S3 and pipe it to client
-app.get('/api/v1/image/:key', (req: Request, res: Response) => {
-  const key = req.params.key;
-  if (!key) {
-    return res.status(404);
-  }
-
-  const readStream = getFileStream(key);
-
-  readStream.pipe(res);
-});
-
+// App Global Error Handler Middleware
 app.use(apiErrorHandler);
 
+// Init Server and listen
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  initParse();
-
+  connectDB();
   console.log(`Server runnning on port ${PORT}`);
 });

@@ -1,5 +1,5 @@
 export const validatePassword = (password: string): boolean => {
-  return password.length >= 6 ? true : false;
+  return password.length >= 6;
 };
 
 export const validateEmail = (email: string): boolean => {
@@ -13,5 +13,5 @@ export const checkPasswordMatch = (
   password: string,
   confirmPassword: string
 ): boolean => {
-  return true;
+  return password === confirmPassword;
 };

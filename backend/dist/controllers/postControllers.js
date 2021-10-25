@@ -37,10 +37,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostControllers = void 0;
-var FileUploadMiddleware_1 = require("../middleware/FileUploadMiddleware");
-var BaseException_1 = require("../modules/BaseException");
-var ImageProcessing_1 = require("../services/ImageProcessing");
-// import { validateCreatePostBody } from '../utils/functions';
 var PostControllers = /** @class */ (function () {
     function PostControllers() {
     }
@@ -49,78 +45,66 @@ var PostControllers = /** @class */ (function () {
             return __generator(this, function (_a) {
                 try {
                 }
-                catch (error) { }
+                catch (error) {
+                    // Handle error
+                    next(error);
+                }
                 return [2 /*return*/];
             });
         });
     };
     PostControllers.create = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, albumId, title, content, file, imageBuffer, result, imageKey, albumQuery, album, userId, userQuery, owner, postData, post, newPost, error_1;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 6, , 7]);
-                        _a = req.body, albumId = _a.albumId, title = _a.title, content = _a.content;
-                        file = req.file;
-                        if (!file) {
-                            return [2 /*return*/, next(new BaseException_1.BaseException('Please provide all required fields', 400))];
-                        }
-                        return [4 /*yield*/, ImageProcessing_1.ImageProcessing.optimize(file.path)];
-                    case 1:
-                        imageBuffer = _b.sent();
-                        return [4 /*yield*/, FileUploadMiddleware_1.uploadFile(imageBuffer, file.filename)];
-                    case 2:
-                        result = _b.sent();
-                        imageKey = result.Key;
-                        albumQuery = new Parse.Query(Parse.Object.extend('Albums'));
-                        albumQuery.equalTo('objectId', albumId);
-                        return [4 /*yield*/, albumQuery.first()];
-                    case 3:
-                        album = _b.sent();
-                        userId = req.headers['userId'];
-                        userQuery = new Parse.Query(Parse.User);
-                        userQuery.equalTo('objectId', userId);
-                        return [4 /*yield*/, userQuery.first()];
-                    case 4:
-                        owner = _b.sent();
-                        postData = {
-                            album: album,
-                            owner: owner,
-                            title: title,
-                            content: content,
-                            imageKey: imageKey,
-                        };
-                        post = new Parse.Object('Posts');
-                        post.set(postData);
-                        return [4 /*yield*/, post.save()];
-                    case 5:
-                        newPost = _b.sent();
-                        res.status(201).json({
-                            success: true,
-                            data: {
-                                id: newPost.id,
-                                title: newPost.get('title'),
-                                content: newPost.get('content'),
-                                postPicture: newPost.get('title'),
-                                ownerId: newPost.get('owner').id,
-                                albumId: newPost.get('album').id,
-                            },
-                        });
-                        return [3 /*break*/, 7];
-                    case 6:
-                        error_1 = _b.sent();
-                        // handle error
-                        next(error_1);
-                        return [3 /*break*/, 7];
-                    case 7: return [2 /*return*/];
+            return __generator(this, function (_a) {
+                try {
                 }
+                catch (error) {
+                    // Handle error
+                    next(error);
+                }
+                return [2 /*return*/];
             });
         });
     };
-    PostControllers.getById = function (req, res, next) { };
-    PostControllers.updateById = function (req, res, next) { };
-    PostControllers.deleteById = function (req, res, next) { };
+    PostControllers.getById = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                try {
+                }
+                catch (error) {
+                    // Handle error
+                    next(error);
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    PostControllers.updateById = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                try {
+                }
+                catch (error) {
+                    // Handle error
+                    next(error);
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    PostControllers.deleteById = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                try {
+                }
+                catch (error) {
+                    // Handle error
+                    next(error);
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
     return PostControllers;
 }());
 exports.PostControllers = PostControllers;

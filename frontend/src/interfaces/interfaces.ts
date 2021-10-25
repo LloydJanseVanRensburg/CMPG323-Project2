@@ -4,3 +4,10 @@ export interface UserAccountData {
   name: string;
   profilePicture: string;
 }
+
+export interface RegisterPayload {}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}

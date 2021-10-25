@@ -1,19 +1,19 @@
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
-import Parse from 'parse/node';
 import { validateCreateGroupBody } from '../utils/functions';
 import { BaseException } from '../modules/BaseException';
 import { uploadFile } from '../middleware/FileUploadMiddleware';
 import { unlinkFile } from '..';
 import { ImageProcessing } from '../services/ImageProcessing';
 import { EmailServices } from '../services/EmailingServices';
+import Group from '../models/Group';
+import User from '../models/User';
+import GroupInvite from '../models/GroupInvite';
+import GroupMember from '../models/GroupMember';
 
 export class GroupControllers {
   static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      // Parse Query All Groups
-      const query = new Parse.Query(Parse.Object.extend('Groups'));
-
       // Pagination Abilities to finding all groups
       // url example -> /api/v1/groups?page=1&limit=10
       let { page, limit } = req.query;
@@ -22,18 +22,20 @@ export class GroupControllers {
       let limitNumber = Number(limit) || 15;
 
       // Pagination Logic
-      query.skip((pageNumber - 1) * limitNumber);
-      query.limit(limitNumber);
+      const groupsQuery = Group.find();
+      groupsQuery.skip((pageNumber - 1) * limitNumber);
+      groupsQuery.limit(limitNumber);
 
       // Get Groups and format correct for response
-      const groups = await query.find();
+      const groups = await groupsQuery.find();
+
       const formattedGroups = groups.map((group: any) => {
         return {
-          id: group.id,
-          title: group.get('title'),
-          description: group.get('description'),
-          groupPicture: group.get('imageKey'),
-          owner: group.get('owner').id,
+          id: group._id,
+          title: group.title,
+          description: group.description,
+          groupPicture: group.profilePicture,
+          owner: group.owner,
         };
       });
 
@@ -82,28 +84,18 @@ export class GroupControllers {
       // Delete the image file from API server once sent to S3
       await unlinkFile(file.path);
 
-      // Fetching Current User
-      const query = new Parse.Query(Parse.User);
-      query.equalTo('objectId', userId);
-      const user = await query.first();
-
-      if (!user) {
-        return next(new BaseException('User not found', 404));
-      }
-
       // Data that builds up group
       let groupData = {
         title,
         description,
         imageKey,
-        owner: user,
+        owner: userId,
         memberCount: 0,
       };
 
       // Creating Group
-      const group = new Parse.Object('Groups');
-      group.set(groupData);
-      const newGroup = await group.save();
+      let newGroup = new Group(groupData);
+      newGroup = await newGroup.save();
 
       // TODO:
       // Check if inviteEmailList is added then invites and add users
@@ -113,11 +105,11 @@ export class GroupControllers {
       res.status(201).json({
         success: true,
         data: {
-          id: newGroup.id,
-          title: newGroup.get('title'),
-          description: newGroup.get('description'),
-          groupPicture: newGroup.get('imageKey'),
-          memberCount: newGroup.get('memberCount'),
+          id: newGroup._id,
+          title: newGroup.title,
+          description: newGroup.description,
+          groupPicture: newGroup.profilePicture,
+          memberCount: newGroup.memberCount,
           ownerId: userId,
         },
       });
@@ -133,12 +125,9 @@ export class GroupControllers {
       let { groupId } = req.params;
 
       // Parse Query for group with objectId
-      const query = new Parse.Query(Parse.Object.extend('Groups'));
-      query.equalTo('objectId', groupId);
+      const group = await Group.findById(groupId);
 
-      const foundGroup = await query.first();
-
-      if (!foundGroup) {
+      if (!group) {
         return next(
           new BaseException(`Group with objectId: ${groupId} not found`, 404)
         );
@@ -148,11 +137,11 @@ export class GroupControllers {
       res.status(200).json({
         success: true,
         data: {
-          id: foundGroup.id,
-          title: foundGroup.get('title'),
-          description: foundGroup.get('description'),
-          groupPicture: foundGroup.get('imageKey'),
-          ownerId: foundGroup.get('owner').id,
+          id: group._id,
+          title: group.title,
+          description: group.description,
+          groupPicture: group.groupPicture,
+          ownerId: group.owner,
         },
       });
     } catch (error: any) {
@@ -166,9 +155,7 @@ export class GroupControllers {
       // Find the groups that is being updated
       let { groupId } = req.params;
 
-      const queryGroup = new Parse.Query(Parse.Object.extend('Groups'));
-      queryGroup.equalTo('objectId', groupId);
-      const foundGroup = await queryGroup.first();
+      const foundGroup = await Group.findById(groupId);
 
       // Check if group found
       if (!foundGroup) {
@@ -186,7 +173,7 @@ export class GroupControllers {
 
       // Check that one to update is owner
       let userId = req.headers['userId'];
-      let ownerId = foundGroup.get('owner').id;
+      let ownerId = foundGroup.owner;
 
       if (userId !== ownerId) {
         return next(
@@ -224,19 +211,21 @@ export class GroupControllers {
       }
 
       // Creating Group
-      foundGroup.set(groupData);
-      const updatedGroup = await foundGroup.save();
+      const updatedGroup = await Group.findByIdAndUpdate(groupId, groupData, {
+        runValidators: true,
+        new: true,
+      });
 
       // Respond with created group info
       res.status(201).json({
         success: true,
         data: {
-          id: updatedGroup.id,
-          title: updatedGroup.get('title'),
-          description: updatedGroup.get('description'),
-          groupPicture: updatedGroup.get('imageKey'),
-          memberCount: updatedGroup.get('memberCount'),
-          ownerId: updatedGroup.get('owner').id,
+          id: updatedGroup._id,
+          title: updatedGroup.title,
+          description: updatedGroup.description,
+          groupPicture: updatedGroup.groupPicture,
+          memberCount: updatedGroup.memberCount,
+          ownerId: updatedGroup.owner,
         },
       });
     } catch (error: any) {
@@ -250,20 +239,15 @@ export class GroupControllers {
       // Get groupId from params
       let { groupId } = req.params;
 
-      const groupQuery = new Parse.Query(Parse.Object.extend('Groups'));
+      const group = await Group.findById(groupId);
 
-      groupQuery.equalTo('objectId', groupId);
-
-      const foundGroup = await groupQuery.first();
-
-      if (!foundGroup) {
+      if (!group) {
         return next(
           new BaseException(`Group with objectId ${groupId} was not found`, 404)
         );
       }
 
-      // Destroy group
-      await foundGroup.destroy();
+      await Group.findByIdAndRemove(groupId);
 
       // TODO:
       // Handle any file delete  of the group profile picture
@@ -285,9 +269,8 @@ export class GroupControllers {
       let { emailInviteList } = req.body;
       let { groupId } = req.params;
 
-      const groupQuery = new Parse.Query(Parse.Object.extend('Groups'));
-      groupQuery.equalTo('objectId', groupId);
-      const foundGroup = await groupQuery.first();
+      const foundGroup = await Group.findById(groupId);
+
       if (!foundGroup) {
         return next(
           new BaseException(`Group with objectId ${groupId} was not found`, 404)
@@ -300,40 +283,36 @@ export class GroupControllers {
         // Check that user is registered
         let email = emailInviteList[i];
 
-        const userQuery = new Parse.Query(Parse.User);
-        userQuery.equalTo('email', email);
-        const foundUser = await userQuery.first();
+        const foundUser = await User.findOne({ email: email });
+
         if (!foundUser) {
           continue;
         }
 
         // Check that user is not part of group already
-        const groupMemberQuery = new Parse.Query(
-          Parse.Object.extend('GroupMembers')
-        );
-        groupMemberQuery.equalTo('userId', foundUser.id);
-        groupMemberQuery.equalTo('groupId', foundGroup.id);
-        const isMember = Boolean(await groupMemberQuery.first());
+        const isMember = await GroupMember.findOne({
+          userId: foundUser._id,
+          groupId: foundGroup._id,
+        });
+
         if (isMember) {
           continue;
         }
 
         // Remove and invites that is already in group invites for this user and group combo
-        const groupInvitesQouery = new Parse.Query(
-          Parse.Object.extend('GroupInvites')
-        );
-        groupInvitesQouery.equalTo('email', email);
-        groupInvitesQouery.equalTo('groupId', groupId);
-        const foundGroupInvites = await groupInvitesQouery.find();
+        const foundGroupInvites = await GroupInvite.find({
+          email: email,
+          groupId: groupId,
+        });
 
         foundGroupInvites.forEach(async (invite) => {
-          await invite.destroy();
+          await GroupInvite.findByIdAndRemove(invite._id);
         });
 
         let inviteObj = {
-          userId: foundUser.id,
-          groupId: foundGroup.id,
-          email: foundUser.get('username'),
+          userId: foundUser._id,
+          groupId: foundGroup._id,
+          email: foundUser.email,
         };
 
         cleanEmailList.push(inviteObj);
@@ -357,18 +336,18 @@ export class GroupControllers {
         `;
 
         // Add to groupInvite class
-        const groupInvite = new Parse.Object('GroupInvites');
-        groupInvite.set({
+        const groupInvite = new GroupInvite({
           email: invite.email,
           groupId: invite.groupId,
           token: token,
         });
+
         await groupInvite.save();
 
         // Send Email
         EmailServices.sendEmail({
           to: invite.email,
-          subject: `Group Invite From ${foundGroup.get('title')}`,
+          subject: `Group Invite From ${foundGroup.title}`,
           text: message,
         });
       });
@@ -390,23 +369,18 @@ export class GroupControllers {
       let { groupId } = req.params;
 
       // Get group invite based on info from request
-      const groupInviteQuery = new Parse.Query(
-        Parse.Object.extend('GroupInvites')
-      );
-      groupInviteQuery.equalTo('email', email);
-      groupInviteQuery.equalTo('groupId', groupId);
-      groupInviteQuery.equalTo('token', token);
-
-      const foundGroupInvite = await groupInviteQuery.first();
+      const foundGroupInvite = await GroupInvite.findOne({
+        email: email,
+        groupId: groupId,
+        token: token,
+      });
 
       if (!foundGroupInvite) {
         return next(new BaseException('You where not invited, sorry!', 404));
       }
 
       // Get user from email
-      const userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo('email', email);
-      const foundUser = await userQuery.first();
+      const foundUser = await User.findOne({ email: email });
 
       if (!foundUser) {
         return next(
@@ -415,16 +389,15 @@ export class GroupControllers {
       }
 
       // Add this user as member of group to groupMembers class
-      const groupMember = new Parse.Object('GroupMembers');
-      groupMember.set({
-        userId: foundUser.id,
+      const groupMember = new GroupMember({
+        userId: foundUser._id,
         groupId: groupId,
       });
 
       await groupMember.save();
 
       // Destroy Invite once user is joined
-      await foundGroupInvite.destroy();
+      await GroupInvite.findByIdAndRemove(foundGroupInvite._id);
 
       res.status(201).json({
         success: true,
@@ -442,13 +415,10 @@ export class GroupControllers {
       let { groupId } = req.params;
       let userId = req.headers['userId'];
 
-      // Parse Query the group members table by userId and groupId
-      const groupMemberQuery = new Parse.Query(
-        Parse.Object.extend('GroupMembers')
-      );
-      groupMemberQuery.equalTo('userId', userId);
-      groupMemberQuery.equalTo('groupId', groupId);
-      const foundGroupMember = await groupMemberQuery.first();
+      const foundGroupMember = await GroupMember.findOne({
+        userId: userId,
+        groupId: groupId,
+      });
 
       if (!foundGroupMember) {
         return next(
@@ -460,7 +430,7 @@ export class GroupControllers {
       }
 
       // Detroy the link between user and group
-      await foundGroupMember.destroy();
+      await GroupMember.findByIdAndRemove(foundGroupMember._id);
 
       // Respond to the client group left success
       res.status(201).json({
