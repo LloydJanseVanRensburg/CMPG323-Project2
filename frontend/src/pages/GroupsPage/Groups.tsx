@@ -1,10 +1,16 @@
 // Core React
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useRef, useContext, useState } from 'react';
 
 // Ionic Components
 import {
+  IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
   IonPage,
   IonSearchbar,
   IonSpinner,
@@ -23,16 +29,34 @@ const Groups = () => {
   const {
     groupsDataLoading,
     groupsDataError,
-    groupsData,
+    searchResults,
     getUserGroupsData,
     setGroupsDataError,
+    searchGroupsHandler,
+    createNewGroup,
+    addGroupLoading,
   } = useContext(GroupsContext);
 
-  const [searchText, setSearchText] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [groupTitle, setGroupTitle] = useState('');
+  const [groupDescription, setGroupDescription] = useState('');
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+
+  const searchInput: any = useRef('');
 
   useEffect(() => {
     getUserGroupsData();
   }, [getUserGroupsData]);
+
+  const createGroupHandler = (e: any) => {
+    e.preventDefault();
+    let groupData = {
+      title: groupTitle,
+      description: groupDescription,
+      image: selectedFile,
+    };
+    createNewGroup(groupData);
+  };
 
   return (
     <IonPage>
@@ -42,6 +66,7 @@ const Groups = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
+        {/* TOAST FOR ERROR WITH LOADING GROUPS */}
         <IonToast
           isOpen={groupsDataError !== ''}
           onDidDismiss={() => setGroupsDataError('')}
@@ -61,12 +86,63 @@ const Groups = () => {
         />
 
         <IonSearchbar
-          value={searchText}
-          onIonChange={(e) => setSearchText(e.detail.value!)}
+          ref={searchInput}
+          value={searchInput.current.value}
+          onIonChange={searchGroupsHandler}
+          debounce={400}
         ></IonSearchbar>
 
-        {groupsDataLoading && <IonSpinner />}
-        {!groupsDataLoading && <GroupsList groups={groupsData} />}
+        {groupsDataLoading && (
+          <div className="groups_spinner">
+            <IonSpinner />
+          </div>
+        )}
+
+        {!groupsDataLoading && (
+          <GroupsList setShowModal={setShowModal} groups={searchResults} />
+        )}
+
+        <IonModal isOpen={showModal} cssClass="my-custom-class">
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Create New Group</IonTitle>
+              <IonButtons slot="end">
+                <IonButton color="danger" onClick={() => setShowModal(false)}>
+                  Close
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <form onSubmit={createGroupHandler} className="createGroup_form">
+              <IonItem>
+                <IonLabel position="floating">Title</IonLabel>
+                <IonInput
+                  value={groupTitle}
+                  onIonChange={(e: any) => setGroupTitle(e.detail.value)}
+                ></IonInput>
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">Description</IonLabel>
+                <IonInput
+                  multiple
+                  value={groupDescription}
+                  onIonChange={(e: any) => setGroupDescription(e.detail.value)}
+                ></IonInput>
+              </IonItem>
+              <IonItem>
+                <input
+                  type="file"
+                  onChange={(e: any) => setSelectedFile(e.target.files[0])}
+                />
+              </IonItem>
+
+              <IonButton disabled={addGroupLoading} type="submit" expand="full">
+                {addGroupLoading ? <IonSpinner name="circles" /> : 'Create'}
+              </IonButton>
+            </form>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );

@@ -3,10 +3,16 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
   background-color: #fff;
   max-width: 90px;
+  height: 90px;
   width: 95%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 5px;
+  margin: 2px;
+}
+
+.groupCard > p {
+  font-size: 0.8rem;
 }

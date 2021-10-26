@@ -7,9 +7,15 @@ import { config } from '../../constants/config';
 
 const GroupState: React.FC = ({ children }) => {
   const initialGroupState = {
+    // Single Group State
     groupData: null,
     groupDataLoading: false,
     groupDataError: '',
+
+    // Album State
+    albumData: [],
+    albumDataLoading: false,
+    albumDataError: '',
   };
 
   const [state, dispatch] = useReducer(groupReducer, initialGroupState);
@@ -42,6 +48,38 @@ const GroupState: React.FC = ({ children }) => {
     }
   }, []);
 
+  const getGroupAlbumData = async (groupId: string) => {
+    try {
+      let token = localStorage.getItem('authData');
+      let axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      dispatch({ type: actionTypes.GET_GROUP_ALBUMS_LOADING });
+
+      const response: any = await axios.get(
+        `${config.apiURL}/albums/search`,
+        axiosConfig
+      );
+
+      let albums = response.data.data;
+
+      dispatch({ type: actionTypes.GET_GROUP_ALBUMS_SUCCESS, payload: albums });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+      dispatch({ type: actionTypes.GET_GROUP_ALBUMS_FAIL, payload: message });
+    }
+  };
+
+  const clearGroupData = () => {
+    dispatch({ type: actionTypes.CLEAR_GROUP_DATA });
+  };
+
   return (
     <GroupContext.Provider
       value={{
@@ -49,6 +87,8 @@ const GroupState: React.FC = ({ children }) => {
         groupDataLoading: state.groupDataLoading,
         groupDataError: state.groupDataError,
         getGroupData,
+        getGroupAlbumData,
+        clearGroupData,
       }}
     >
       {children}

@@ -148,7 +148,7 @@ var GroupControllers = /** @class */ (function () {
                                 id: newGroup._id,
                                 title: newGroup.title,
                                 description: newGroup.description,
-                                groupPicture: newGroup.profilePicture,
+                                groupPicture: newGroup.groupPicture,
                                 memberCount: newGroup.memberCount,
                                 ownerId: userId,
                             },
