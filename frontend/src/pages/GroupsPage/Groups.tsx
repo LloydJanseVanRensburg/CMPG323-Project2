@@ -48,14 +48,17 @@ const Groups = () => {
     getUserGroupsData();
   }, [getUserGroupsData]);
 
-  const createGroupHandler = (e: any) => {
+  const createGroupHandler = async (e: any) => {
     e.preventDefault();
     let groupData = {
       title: groupTitle,
       description: groupDescription,
       image: selectedFile,
     };
-    createNewGroup(groupData);
+    await createNewGroup(groupData);
+    setGroupTitle('');
+    setGroupDescription('');
+    setShowModal(false);
   };
 
   return (
@@ -107,7 +110,11 @@ const Groups = () => {
             <IonToolbar>
               <IonTitle>Create New Group</IonTitle>
               <IonButtons slot="end">
-                <IonButton color="danger" onClick={() => setShowModal(false)}>
+                <IonButton
+                  disabled={addGroupLoading}
+                  color="danger"
+                  onClick={() => setShowModal(false)}
+                >
                   Close
                 </IonButton>
               </IonButtons>

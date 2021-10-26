@@ -14,6 +14,7 @@ const GroupState: React.FC = ({ children }) => {
 
     // Album State
     albumData: [],
+    searchAlbums: [],
     albumDataLoading: false,
     albumDataError: '',
   };
@@ -80,15 +81,21 @@ const GroupState: React.FC = ({ children }) => {
     dispatch({ type: actionTypes.CLEAR_GROUP_DATA });
   };
 
+  const searchAlbumsHandler = (e: any) => {
+    dispatch({ type: actionTypes.SEARCH_ALBUMS, payload: e.detail.value });
+  };
+
   return (
     <GroupContext.Provider
       value={{
         groupData: state.groupData,
         groupDataLoading: state.groupDataLoading,
         groupDataError: state.groupDataError,
+        searchAlbums: state.searchAlbums,
         getGroupData,
         getGroupAlbumData,
         clearGroupData,
+        searchAlbumsHandler,
       }}
     >
       {children}

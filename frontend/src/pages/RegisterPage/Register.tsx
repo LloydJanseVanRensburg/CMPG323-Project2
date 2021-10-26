@@ -100,7 +100,7 @@ const Register = () => {
         />
 
         <form className="form">
-          <IonItem>
+          <IonItem className="ion-margin-top">
             <IonLabel position="floating">Username</IonLabel>
             <IonInput
               type="text"
@@ -109,7 +109,7 @@ const Register = () => {
             ></IonInput>
           </IonItem>
 
-          <IonItem>
+          <IonItem className="ion-margin-top">
             <IonLabel position="floating">Email</IonLabel>
             <IonInput
               type="email"
@@ -118,7 +118,7 @@ const Register = () => {
             ></IonInput>
           </IonItem>
 
-          <IonItem>
+          <IonItem className="ion-margin-top">
             <IonLabel position="floating">Password</IonLabel>
             <IonInput
               type="password"
@@ -127,7 +127,7 @@ const Register = () => {
             ></IonInput>
           </IonItem>
 
-          <IonItem>
+          <IonItem className="ion-margin-top">
             <IonLabel position="floating">Confirm Password</IonLabel>
             <IonInput
               type="password"
@@ -141,6 +141,7 @@ const Register = () => {
             expand="full"
             color="primary"
             onClick={registerHandler}
+            className="ion-margin-top"
           >
             {registerUserLoading ? <IonSpinner name="circles" /> : 'Register'}
           </IonButton>

@@ -15,6 +15,10 @@ const GroupsState: React.FC = ({ children }) => {
     // ADD GROUP STATE
     addGroupLoading: false,
     addGroupError: '',
+
+    // DELETE GROUP STATE
+    deleteGroupLoading: false,
+    deleteGroupError: '',
   };
 
   const [state, dispatch] = useReducer(groupsReducer, initialGroupsState);
@@ -82,6 +86,7 @@ const GroupsState: React.FC = ({ children }) => {
       );
 
       let data = response.data.data;
+      console.log(data);
 
       dispatch({ type: actionTypes.ADD_NEW_GROUP_SUCCESS, payload: data });
     } catch (error: any) {
@@ -90,6 +95,33 @@ const GroupsState: React.FC = ({ children }) => {
         : 'Something went wrong please try again';
 
       dispatch({ type: actionTypes.ADD_NEW_GROUP_FAIL, payload: message });
+    }
+  };
+
+  const deleteGroup = async (groupId: number) => {
+    try {
+      dispatch({ type: actionTypes.DELETE_GROUP_LOADING });
+
+      let token = localStorage.getItem('authToken');
+      let axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response: any = await axios.delete(
+        `${config.apiURL}/groups/${groupId}`,
+        axiosConfig
+      );
+
+      if (response.data.success) {
+        dispatch({ type: actionTypes.DELETE_GROUP_SUCCESS, payload: groupId });
+      }
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+      dispatch({ type: actionTypes.DELETE_GROUP_FAIL, payload: message });
     }
   };
 
@@ -102,10 +134,13 @@ const GroupsState: React.FC = ({ children }) => {
         searchResults: state.searchResults,
         addGroupLoading: state.addGroupLoading,
         addGroupError: state.addGroupError,
+        deleteGroupLoading: state.deleteGroupLoading,
+        deleteGroupError: state.deleteGroupError,
         getUserGroupsData,
         setGroupsDataError,
         searchGroupsHandler,
         createNewGroup,
+        deleteGroup,
       }}
     >
       {children}

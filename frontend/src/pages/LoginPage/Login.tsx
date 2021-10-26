@@ -94,7 +94,7 @@ const Login = () => {
         />
 
         <form className="form">
-          <IonItem>
+          <IonItem className="ion-margin-top">
             <IonLabel position="floating">Email</IonLabel>
             <IonInput
               type="email"
@@ -104,7 +104,7 @@ const Login = () => {
             ></IonInput>
           </IonItem>
 
-          <IonItem>
+          <IonItem className="ion-margin-top">
             <IonLabel position="floating">Password</IonLabel>
             <IonInput
               type="password"
@@ -119,6 +119,7 @@ const Login = () => {
             expand="full"
             color="primary"
             onClick={loginHandler}
+            className="ion-margin-top"
           >
             {loginUserLoading ? <IonSpinner name="circles" /> : 'Login'}
           </IonButton>

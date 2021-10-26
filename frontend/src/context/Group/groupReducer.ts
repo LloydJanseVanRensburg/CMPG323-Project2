@@ -6,15 +6,19 @@ export const groupReducer = (state: any, action: any) => {
     case actionTypes.GET_GROUPDATA_LOADING:
       return {
         ...state,
+        groupDataLoading: true,
       };
     case actionTypes.GET_GROUPDATA_SUCCESS:
       return {
         ...state,
+        groupDataLoading: false,
         groupData: action.payload,
       };
     case actionTypes.GET_GROUPDATA_FAIL:
       return {
         ...state,
+        groupDataLoading: false,
+        groupDataError: action.payload,
       };
 
     // CLEAR GROUP DATA
