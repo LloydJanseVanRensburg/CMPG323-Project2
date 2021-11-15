@@ -5,8 +5,7 @@ import jwt from 'jsonwebtoken';
 // Custom Error
 import { BaseException } from '../modules/BaseException';
 
-// User Model
-import User from '../models/User';
+const db = require('../models');
 
 export class AuthMiddleware {
   static async auth(req: Request, res: Response, next: NextFunction) {
@@ -19,7 +18,7 @@ export class AuthMiddleware {
     try {
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-      const user = await User.findById(decoded.userId);
+      const user = await db.User.findByPk(decoded.userId);
 
       // TODO:  More  security  check
       // 1) Banned user
@@ -29,7 +28,8 @@ export class AuthMiddleware {
         return next(new BaseException('Access denied not authorized', 401));
       }
 
-      req.headers['userId'] = user._id;
+      // @ts-ignore
+      req.user = user;
 
       next();
     } catch (error: any) {

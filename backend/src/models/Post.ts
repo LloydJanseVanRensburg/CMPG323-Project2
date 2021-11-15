@@ -1,5 +1,5 @@
 module.exports = (sequelize: any, DataTypes: any) => {
-  const Group = sequelize.define('group', {
+  const Post = sequelize.define('post', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -10,28 +10,28 @@ module.exports = (sequelize: any, DataTypes: any) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    description: {
+    body: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    groupPicture: {
-      type: DataTypes.STRING,
+    files: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
     },
-    memberCount: {
-      type: DataTypes.INTEGER,
+    userId: {
+      type: DataTypes.UUID,
       allowNull: false,
-      defaultValue: 0,
     },
-    owner: {
+    albumId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
   });
 
-  Group.accociate = (models: any) => {
-    Group.belongsTo(models.user, { foreignKey: 'owner' });
+  Post.associate = (models: any) => {
+    Post.belongsTo(models.user, { foreignKey: 'userId' });
+    Post.belongsTo(models.album, { foreignKey: 'albumId' });
   };
 
-  return Group;
+  return Post;
 };

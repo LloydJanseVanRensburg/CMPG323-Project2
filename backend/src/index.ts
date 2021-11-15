@@ -1,15 +1,15 @@
+//=========================================IMPORTS======================================================
 // ENV Variables served to app
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Core Node
-import fs from 'fs';
-import util from 'util';
-
 // 3rd Party Modules
-import express, { Request, Response } from 'express';
+import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+
+// Database connection file
+const db = require('./models/index');
 
 // Custom Middleware
 import apiErrorHandler from './middleware/apiErrorHandler';
@@ -18,13 +18,10 @@ import apiErrorHandler from './middleware/apiErrorHandler';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import groupRoutes from './routes/groupRoutes';
+import albumRoutes from './routes/albumRoutes';
 import postRoutes from './routes/postRoutes';
 import imageRoutes from './routes/imageRoutes';
-
-// DB Connection Function
-import { connectDB } from './config/db';
-
-export const unlinkFile = util.promisify(fs.unlink);
+//============================================================================================================
 
 // Init Express App
 const app = express();
@@ -38,6 +35,7 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/groups', groupRoutes);
+app.use('/api/v1/albums', albumRoutes);
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/image', imageRoutes);
 
@@ -46,7 +44,17 @@ app.use(apiErrorHandler);
 
 // Init Server and listen
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  connectDB();
-  console.log(`Server runnning on port ${PORT}`);
-});
+
+// Database Connection and Server Startup
+db.sequelize
+  .authenticate()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server runnning on port ${PORT}`);
+    });
+  })
+  .catch((e: any) => {
+    console.log(' \n\nDATABASE CONNECTION ERROR 💥🚨!!\n\n');
+    console.log(e);
+    process.exit(1);
+  });

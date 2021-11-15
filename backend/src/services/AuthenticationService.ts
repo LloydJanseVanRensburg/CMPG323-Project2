@@ -1,31 +1,36 @@
 import jwt from 'jsonwebtoken';
 import { BaseException } from '../modules/BaseException';
-import User from '../models/User';
 import bcrypt from 'bcryptjs';
 import { LoginObject, RegisterObject } from '../interfaces/interfaces';
+import { ProcessCredentials } from 'aws-sdk';
+
+const db = require('../models');
 
 export class AuthenticationService {
   static login(data: LoginObject) {
     return new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({ email: data.email });
+        const user = await db.user.findOne({
+          where: { email: data.email },
+        });
 
         if (!user) {
-          return reject(new BaseException('Invalid email or password', 401));
+          return reject(BaseException.invalidCredentials());
         }
 
         const isMatch = await bcrypt.compare(data.password, user.password);
 
         if (!isMatch) {
-          return reject(new BaseException('Invalid email or password', 401));
+          return reject(BaseException.invalidCredentials());
         }
 
+        // Building JWT Token payload
         const payload = {
           userId: user._id,
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-          expiresIn: '1d',
+          expiresIn: process.env.JWT_EXPIRES_IN!,
         });
 
         resolve({
@@ -33,7 +38,7 @@ export class AuthenticationService {
           data: {
             token: token,
             user: {
-              id: user._id,
+              id: user.id,
               username: user.username,
               email: user.email,
               profilePicture: user.profilePicture,
@@ -41,9 +46,8 @@ export class AuthenticationService {
           },
         });
       } catch (error: any) {
-        console.log(error.message);
         if (error.message === 'jwt expires') {
-          reject(new BaseException('Token has expired', 401));
+          reject(BaseException.expiredToken());
         } else {
           reject(error);
         }
@@ -55,25 +59,24 @@ export class AuthenticationService {
     return new Promise(async (resolve, reject) => {
       try {
         // Check user don't exists already
-        const foundUser = await User.findOne({ email: data.email });
+        const foundUser = await db.user.findOne({
+          where: { email: data.email },
+        });
 
         if (foundUser) {
-          return reject(
-            new BaseException('User already exsists with this email', 400)
-          );
+          return reject(BaseException.alreadyRegistered());
         }
 
         // Hash password
         let hashedPassword = await bcrypt.hash(data.password, 12);
 
         // Save  user
-        const user = new User({
+        const newUser = await db.user.create({
           username: data.username,
           email: data.email,
           password: hashedPassword,
           profilePicture: data.profilePicture,
         });
-        const newUser = await user.save();
 
         // Creating and Sign JWT
         const payload = {
@@ -81,7 +84,7 @@ export class AuthenticationService {
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-          expiresIn: '1d',
+          expiresIn: process.env.JWT_EXPIRES_IN!,
         });
 
         // Resolve with register data

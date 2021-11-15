@@ -18,15 +18,6 @@ const ses = new aws.SES({
 
 export class EmailServices {
   static sendEmail(options: SendEmailOptions) {
-    // SendGrid Transporter
-    // const transporter = nodemailer.createTransport({
-    //   service: process.env.EMAIL_SERVICE,
-    //   auth: {
-    //     user: process.env.EMAIL_USERNAME,
-    //     pass: process.env.EMAIL_PASSWORD,
-    //   },
-    // });
-
     // AWS SES Transporter
     const transporterSES = nodemailer.createTransport({
       SES: { ses, aws },
@@ -38,14 +29,6 @@ export class EmailServices {
       subject: options.subject,
       html: options.text,
     };
-
-    // transporter.sendMail(mailOptions, function (err, info) {
-    //   if (err) {
-    //     console.log(err);
-    //   } else {
-    //     console.log(info);
-    //   }
-    // });
 
     transporterSES.sendMail(mailOptions, (err, info) => {
       if (err) console.log(err);

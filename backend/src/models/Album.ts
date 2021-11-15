@@ -1,17 +1,21 @@
 module.exports = (sequelize: any, DataTypes: any) => {
-  const GroupInvite = sequelize.define('groupinvite', {
+  const Album = sequelize.define('album', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
     },
-    email: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    token: {
+    description: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    creator: {
+      type: DataTypes.UUID,
       allowNull: false,
     },
     groupId: {
@@ -20,9 +24,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
     },
   });
 
-  GroupInvite.accociate = (models: any) => {
-    GroupInvite.belongsTo(models.group, { foreignKey: 'groupId' });
+  Album.associate = (models: any) => {
+    Album.belongsTo(models.user, { foreignKey: 'creator' });
+    Album.belongsTo(models.group, { foreignKey: 'groupId' });
   };
 
-  return GroupInvite;
+  return Album;
 };

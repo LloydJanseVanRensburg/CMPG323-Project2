@@ -1,29 +1,28 @@
-import mongoose from 'mongoose';
-
-const userSchema = new mongoose.Schema(
-  {
+module.exports = (sequelize: any, DataTypes: any) => {
+  const User = sequelize.define('user', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      primaryKey: true,
+    },
     username: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     email: {
-      type: String,
-      required: true,
-      unique: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     password: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     profilePicture: {
-      type: String,
-      required: true,
-      default: '', // Add in the default profile picutre imageKey save in S3
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-  },
-  { timestamps: true }
-);
+  });
 
-const User = mongoose.model('User', userSchema);
-
-export default User;
+  return User;
+};

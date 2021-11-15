@@ -5,30 +5,30 @@ import { RegisterObject } from '../interfaces/interfaces';
 import {
   validateLoginAuthBody,
   validateRegisterAuthBody,
-} from '../utils/functions';
-import User from '../models/User';
+} from '../utils/requestValidations';
+import { httpStatusCode } from '../constants/httpStatusCodes';
+const db = require('../models');
 
 export class AuthControllers {
   static async loggedInUser(req: Request, res: Response, next: NextFunction) {
     try {
-      let userId = req.headers['userId'];
+      // @ts-ignore
+      const { id: userId } = req.user;
 
-      const user = await User.findById(userId);
+      const user = await db.User.findByPk(userId, {
+        attributes: {
+          include: ['id', 'username', 'email', 'profilePricture'],
+        },
+      });
 
       if (!user) {
-        return next(new BaseException('User not found', 404));
+        next(BaseException.notFound());
+        return;
       }
 
-      res.status(200).json({
+      res.status(httpStatusCode.OK).json({
         success: true,
-        data: {
-          user: {
-            id: user._id,
-            username: user.username,
-            email: user.email,
-            profilePicture: user.profilePicture,
-          },
-        },
+        data: user,
       });
     } catch (error) {
       next(error);
@@ -39,9 +39,8 @@ export class AuthControllers {
     try {
       // Validate Login Request body
       if (!validateLoginAuthBody(req.body)) {
-        return next(
-          new BaseException('Please provide all email and password', 400)
-        );
+        next(BaseException.invalidRequestBody());
+        return;
       }
 
       // Email  and Password Required for login
@@ -51,10 +50,9 @@ export class AuthControllers {
       const data = await AuthenticationService.login({ email, password });
 
       // Respond to client login data
-      res.status(200).json(data);
+      res.status(httpStatusCode.OK).json(data);
     } catch (error: any) {
-      // Handle Error
-      next(new BaseException(error.message, error.statusCode));
+      next(error);
     }
   }
 
@@ -62,22 +60,20 @@ export class AuthControllers {
     try {
       // Validate Request Body
       if (!validateRegisterAuthBody(req.body)) {
-        return next(
-          new BaseException('Please provide all email and password', 400)
-        );
+        next(BaseException.invalidRequestBody());
+        return;
       }
 
-      // Email, Username, Password, ProfilePicture
-      let registerBody: RegisterObject = req.body;
+      let { email, username, password } = req.body;
 
       // Let pfp
       let profilePicture =
-        registerBody.profilePicture ?? 'ea83409a099cfe26db0a435faf362b31';
+        req.body.profilePicture ?? 'ea83409a099cfe26db0a435faf362b31';
 
       let registerData = {
-        email: registerBody.email,
-        username: registerBody.username,
-        password: registerBody.password,
+        email,
+        username,
+        password,
         profilePicture,
       };
 
@@ -85,10 +81,9 @@ export class AuthControllers {
       const data = await AuthenticationService.register(registerData);
 
       // Respond to client with register data
-      res.status(200).json(data);
+      res.status(httpStatusCode.CREATED).json(data);
     } catch (error: any) {
-      // Handle error
-      next(new BaseException(error.message, error.statusCode));
+      next(error);
     }
   }
 }

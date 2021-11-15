@@ -1,21 +1,25 @@
-import mongoose from 'mongoose';
-
-const groupMemberSchema = new mongoose.Schema(
-  {
+module.exports = (sequelize: any, DataTypes: any) => {
+  const GroupMember = sequelize.define('groupmember', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      primaryKey: true,
+    },
     memberId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
+      type: DataTypes.UUID,
+      allowNull: false,
     },
     groupId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Group',
-      required: true,
+      type: DataTypes.UUID,
+      allowNull: false,
     },
-  },
-  { timestamps: true }
-);
+  });
 
-const GroupMember = mongoose.model('GroupMember', groupMemberSchema);
+  GroupMember.accociate = (models: any) => {
+    GroupMember.belongsTo(models.group, { foreignKey: 'groupId' });
+    GroupMember.belongsTo(models.user, { foreignKey: 'memberId' });
+  };
 
-export default GroupMember;
+  return GroupMember;
+};
