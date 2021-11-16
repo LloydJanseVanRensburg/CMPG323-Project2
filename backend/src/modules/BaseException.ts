@@ -20,6 +20,10 @@ export class BaseException extends Error {
     return new BaseException('Not allowed', httpStatusCode.UNAUTHORIZED);
   }
 
+  static notInvited() {
+    return new BaseException('No invite found', 404);
+  }
+
   static invalidRequestBody() {
     return new BaseException(
       'Invalid request body',
@@ -30,6 +34,13 @@ export class BaseException extends Error {
   static invalidCredentials() {
     return new BaseException(
       'Invalid Credentials',
+      httpStatusCode.UNAUTHORIZED
+    );
+  }
+
+  static invalidToken() {
+    return new BaseException(
+      'Access denied invalid token',
       httpStatusCode.UNAUTHORIZED
     );
   }

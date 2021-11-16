@@ -1,3 +1,5 @@
+import { ROLE } from '../constants/groupMemberRoles';
+
 module.exports = (sequelize: any, DataTypes: any) => {
   const GroupMember = sequelize.define('groupmember', {
     id: {
@@ -13,6 +15,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
     groupId: {
       type: DataTypes.UUID,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM([ROLE.SUPERADMIN, ROLE.ADMIN, ROLE.MEMBER]),
+      allowNull: false,
+      defaultValue: ROLE.MEMBER,
     },
   });
 

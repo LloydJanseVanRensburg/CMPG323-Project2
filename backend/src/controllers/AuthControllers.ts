@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { BaseException } from '../modules/BaseException';
 import { AuthenticationService } from '../services/AuthenticationService';
-import { RegisterObject } from '../interfaces/interfaces';
 import {
   validateLoginAuthBody,
   validateRegisterAuthBody,
@@ -15,10 +14,8 @@ export class AuthControllers {
       // @ts-ignore
       const { id: userId } = req.user;
 
-      const user = await db.User.findByPk(userId, {
-        attributes: {
-          include: ['id', 'username', 'email', 'profilePricture'],
-        },
+      const user = await db.user.findByPk(userId, {
+        attributes: { exclude: ['password'] },
       });
 
       if (!user) {
@@ -66,15 +63,11 @@ export class AuthControllers {
 
       let { email, username, password } = req.body;
 
-      // Let pfp
-      let profilePicture =
-        req.body.profilePicture ?? 'ea83409a099cfe26db0a435faf362b31';
-
       let registerData = {
         email,
         username,
         password,
-        profilePicture,
+        profilePicture: 'ea83409a099cfe26db0a435faf362b31',
       };
 
       // Register Service

@@ -26,7 +26,7 @@ export class AuthenticationService {
 
         // Building JWT Token payload
         const payload = {
-          userId: user._id,
+          userId: user.id,
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET!, {
@@ -80,7 +80,7 @@ export class AuthenticationService {
 
         // Creating and Sign JWT
         const payload = {
-          userId: newUser._id,
+          userId: newUser.id,
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET!, {
@@ -93,7 +93,7 @@ export class AuthenticationService {
           data: {
             token: token,
             user: {
-              id: newUser._id,
+              id: newUser.id,
               username: newUser.username,
               email: newUser.email,
               profilePicture: newUser.profilePicture,

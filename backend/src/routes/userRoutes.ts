@@ -15,11 +15,6 @@ router.get('/', AuthMiddleware.auth, UserControllers.getAll);
 router.get('/:userId', AuthMiddleware.auth, UserControllers.getById);
 
 // @route   -   /api/v1/users/:userId
-// @desc    -   PUT update a user by id
-// @access  -   Private
-router.put('/:userId', AuthMiddleware.auth, UserControllers.updateById);
-
-// @route   -   /api/v1/users/:userId
 // @desc    -   DELETE remove user by id
 // @access  -   Private
 router.delete('/:userId', AuthMiddleware.auth, UserControllers.deleteById);

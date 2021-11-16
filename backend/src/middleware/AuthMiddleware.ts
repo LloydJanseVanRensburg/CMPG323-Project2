@@ -5,12 +5,14 @@ import jwt from 'jsonwebtoken';
 // Custom Error
 import { BaseException } from '../modules/BaseException';
 
+// Database models
 const db = require('../models');
 
 export class AuthMiddleware {
   static async auth(req: Request, res: Response, next: NextFunction) {
     if (!req.headers.authorization) {
-      return next(new BaseException('Access denied not authorized', 401));
+      next(BaseException.notAllowed());
+      return;
     }
 
     let token = req.headers.authorization.split(' ')[1];
@@ -18,14 +20,15 @@ export class AuthMiddleware {
     try {
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-      const user = await db.User.findByPk(decoded.userId);
+      const user = await db.user.findByPk(decoded.userId);
 
       // TODO:  More  security  check
       // 1) Banned user
       // 2) Reset password date vs token issued date
 
       if (!user) {
-        return next(new BaseException('Access denied not authorized', 401));
+        next(BaseException.notAllowed());
+        return;
       }
 
       // @ts-ignore
@@ -34,7 +37,8 @@ export class AuthMiddleware {
       next();
     } catch (error: any) {
       if (error.message === 'jwt malformed') {
-        return next(new BaseException('Access denied invalid token', 401));
+        next(BaseException.invalidToken());
+        return;
       }
 
       next(error);
