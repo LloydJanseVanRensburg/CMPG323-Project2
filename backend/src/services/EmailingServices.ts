@@ -24,7 +24,7 @@ export class EmailServices {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM,
+      from: process.env.AWS_EMAIL_FROM,
       to: options.to,
       subject: options.subject,
       html: options.text,

@@ -29,8 +29,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
   });
 
   Post.associate = (models: any) => {
-    Post.belongsTo(models.user, { foreignKey: 'userId' });
-    Post.belongsTo(models.album, { foreignKey: 'albumId' });
+    Post.belongsTo(models.user, { foreignKey: 'userId', onDelete: 'CASCADE' });
+    Post.belongsTo(models.album, {
+      foreignKey: 'albumId',
+      onDelete: 'CASCADE',
+    });
   };
 
   return Post;

@@ -4,6 +4,15 @@ import { AuthMiddleware } from '../middleware/AuthMiddleware';
 
 const router = express.Router();
 
+// @route   -   /api/v1/albums/group-albums
+// @desc    -   POST fetch all albums for group
+// @access  -   Private
+router.post(
+  '/group-albums',
+  AuthMiddleware.auth,
+  AlbumControllers.getAllGroupAlbums
+);
+
 // @route   -   /api/v1/albums
 // @desc    -   GET fetch all albums
 // @access  -   Private

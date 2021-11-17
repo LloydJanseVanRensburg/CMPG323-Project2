@@ -23,7 +23,7 @@ export class InviteService {
           // Check that user is not part of group already
           const isMember = await db.groupmember.findOne({
             where: {
-              userId: foundUser.id,
+              memberId: foundUser.id,
               groupId: foundGroup.id,
             },
           });
@@ -38,7 +38,9 @@ export class InviteService {
             groupId: foundGroup.id,
           });
 
-          await foundGroupInvite.destroy();
+          if (foundGroupInvite) {
+            await foundGroupInvite.destroy();
+          }
 
           let inviteObj = {
             userId: foundUser.id,

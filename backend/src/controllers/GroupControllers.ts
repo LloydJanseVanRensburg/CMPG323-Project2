@@ -42,7 +42,7 @@ export class GroupControllers {
         title,
         description,
         groupPicture: 'ea83409a099cfe26db0a435faf362b31',
-        memberCount: 0,
+        memberCount: 1,
       });
 
       // Add the creator of the group as groupmember super admin for group
@@ -210,6 +210,13 @@ export class GroupControllers {
       let { email, token } = req.query;
       let { groupId } = req.params;
 
+      const foundGroup = await db.group.findByPk(groupId);
+
+      if (!foundGroup) {
+        next(BaseException.notFound());
+        return;
+      }
+
       // Get group invite based on info from request
       const foundGroupInvite = await db.groupinvite.findOne({
         where: {
@@ -234,12 +241,15 @@ export class GroupControllers {
 
       // Add this user as member of group to groupMembers class
       await db.groupmember.create({
-        userId: foundUser._id,
+        memberId: foundUser.id,
         groupId: groupId,
       });
 
       // Destroy Invite once user is joined
       await foundGroupInvite.destroy();
+
+      // Update member count
+      await foundGroup.increment('memberCount', { by: 1 });
 
       res.status(httpStatusCode.CREATED).json({
         success: true,
@@ -257,9 +267,16 @@ export class GroupControllers {
       // @ts-ignore
       const { id: userId } = req.user;
 
+      const foundGroup = await db.group.findByPk(groupId);
+
+      if (!foundGroup) {
+        next(BaseException.notFound());
+        return;
+      }
+
       const foundGroupMember = await db.groupmember.findOne({
         where: {
-          userId,
+          memberId: userId,
           groupId,
         },
       });
@@ -271,6 +288,9 @@ export class GroupControllers {
 
       // Destroy the link between user and group
       await foundGroupMember.destroy();
+
+      // Subtract 1 from memberCount of group
+      await foundGroup.decrement('memberCount', { by: 1 });
 
       // Respond to the client group left success
       res.status(httpStatusCode.OK).json({

@@ -30,7 +30,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
   });
 
   Group.accociate = (models: any) => {
-    Group.belongsTo(models.user, { foreignKey: 'owner' });
+    Group.belongsTo(models.user, { foreignKey: 'owner', onDelete: 'CASCADE' });
   };
 
   return Group;

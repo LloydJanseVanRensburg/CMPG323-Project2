@@ -21,7 +21,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
   });
 
   GroupInvite.accociate = (models: any) => {
-    GroupInvite.belongsTo(models.group, { foreignKey: 'groupId' });
+    GroupInvite.belongsTo(models.group, {
+      foreignKey: 'groupId',
+      onDelete: 'CASCADE',
+    });
   };
 
   return GroupInvite;

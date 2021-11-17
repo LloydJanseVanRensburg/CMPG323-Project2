@@ -24,8 +24,14 @@ module.exports = (sequelize: any, DataTypes: any) => {
   });
 
   GroupMember.accociate = (models: any) => {
-    GroupMember.belongsTo(models.group, { foreignKey: 'groupId' });
-    GroupMember.belongsTo(models.user, { foreignKey: 'memberId' });
+    GroupMember.belongsTo(models.group, {
+      foreignKey: 'groupId',
+      onDelete: 'CASCADE',
+    });
+    GroupMember.belongsTo(models.user, {
+      foreignKey: 'memberId',
+      onDelete: 'CASCADE',
+    });
   };
 
   return GroupMember;

@@ -25,8 +25,14 @@ module.exports = (sequelize: any, DataTypes: any) => {
   });
 
   Album.associate = (models: any) => {
-    Album.belongsTo(models.user, { foreignKey: 'creator' });
-    Album.belongsTo(models.group, { foreignKey: 'groupId' });
+    Album.belongsTo(models.user, {
+      foreignKey: 'creator',
+      onDelete: 'CASCADE',
+    });
+    Album.belongsTo(models.group, {
+      foreignKey: 'groupId',
+      onDelete: 'CASCADE',
+    });
   };
 
   return Album;

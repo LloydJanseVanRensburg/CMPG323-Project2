@@ -1,12 +1,43 @@
 import { Request, Response, NextFunction } from 'express';
 import { BaseException } from '../modules/BaseException';
 import { httpStatusCode } from '../constants/httpStatusCodes';
+import {
+  validateCreateAlbumBody,
+  validateUpdateAlbumBody,
+  validateGetGroupAlbumBody,
+} from '../utils/requestValidations';
 
 const db = require('../models');
 
 export class AlbumControllers {
+  static async getAllGroupAlbums(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      if (!validateGetGroupAlbumBody(req.body)) {
+        next(BaseException.invalidRequestBody());
+        return;
+      }
+
+      const { groupId } = req.body;
+
+      const foundGroupAlbums = await db.album.findAll({ where: { groupId } });
+
+      res.status(httpStatusCode.OK).json({
+        success: true,
+        count: foundGroupAlbums.length,
+        data: foundGroupAlbums,
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
   static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
+      const {} = req.body;
       const albums = await db.album.findAll();
 
       res.status(httpStatusCode.OK).json({
@@ -22,12 +53,35 @@ export class AlbumControllers {
 
   static async createAlbum(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!validateCreateAlbumBody(req.body)) {
+        next(BaseException.invalidRequestBody());
+        return;
+      }
+
       // @ts-ignore
       const { id: userId } = req.user;
       const { groupId, title, description } = req.body;
 
-      // TODO: Validate Req.body
-      // TODO: Ensure user is group member of groupId
+      // Check that group exists
+      const foundGroup = await db.group.findByPk(groupId);
+
+      if (!foundGroup) {
+        next(BaseException.notFound());
+        return;
+      }
+
+      // Check that group member exists
+      const foundGroupMember = await db.groupmember.findOne({
+        where: {
+          memberId: userId,
+          groupId,
+        },
+      });
+
+      if (!foundGroupMember) {
+        next(BaseException.notFound());
+        return;
+      }
 
       const newAlbum = await db.album.create({
         title,
@@ -41,7 +95,6 @@ export class AlbumControllers {
         data: newAlbum,
       });
     } catch (error: any) {
-      console.trace(error);
       next(error);
     }
   }
@@ -69,13 +122,17 @@ export class AlbumControllers {
 
   static async updateById(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!validateUpdateAlbumBody(req.body)) {
+        next(BaseException.invalidRequestBody());
+        return;
+      }
+
       const { albumId } = req.params;
       const { title, description } = req.body;
       // @ts-ignore
       const { id: userId } = req.user;
 
-      // TODO: Validate req.body
-
+      // Check that album exists
       const foundAlbum = await db.album.findByPk(albumId);
 
       if (!foundAlbum) {
@@ -83,7 +140,11 @@ export class AlbumControllers {
         return;
       }
 
-      // TODO: Ensure user is creator of album
+      // Check that user is album creator
+      if (foundAlbum.creator !== userId) {
+        next(BaseException.notAllowed());
+        return;
+      }
 
       if (title) foundAlbum.title = title;
       if (description) foundAlbum.description = description;
@@ -113,7 +174,12 @@ export class AlbumControllers {
         return;
       }
 
-      // TODO: Ensure user is creator of album
+      if (foundAlbum.creator !== userId) {
+        next(BaseException.notAllowed());
+        return;
+      }
+
+      await foundAlbum.destroy();
 
       res.status(httpStatusCode.OK).json({
         success: true,
@@ -121,7 +187,6 @@ export class AlbumControllers {
         message: 'Successfully deleted',
       });
     } catch (error: any) {
-      console.trace(error);
       next(error);
     }
   }
