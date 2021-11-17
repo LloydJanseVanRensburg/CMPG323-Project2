@@ -53,10 +53,10 @@ const AuthState: React.FC = ({ children }) => {
       dispatch({
         type: actionTypes.GET_AUTH_USER_SUCCESS,
         payload: {
-          id: result.data.data.user.id,
-          email: result.data.data.user.email,
-          name: result.data.data.user.name,
-          profilePicture: result.data.data.user.profilePicture,
+          id: result.data.data.id,
+          email: result.data.data.email,
+          name: result.data.data.username,
+          profilePicture: result.data.data.profilePicture,
         },
       });
     } catch (error: any) {
