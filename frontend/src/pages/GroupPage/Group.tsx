@@ -1,5 +1,5 @@
 // Core React
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 
 // React Router Dom
 import { useParams, useHistory } from 'react-router-dom';
@@ -45,6 +45,7 @@ import {
 } from 'ionicons/icons';
 import { GroupsContext } from '../../context/Groups/groupsContext';
 import GroupCard from '../../components/GroupCard/GroupCard';
+import axios from 'axios';
 
 const Group: React.FC = () => {
   const history = useHistory();
@@ -90,6 +91,29 @@ const Group: React.FC = () => {
   });
 
   const createNewAlbum = () => {};
+
+  const uploadFile = async (e: any) => {
+    const formData = new FormData();
+    formData.append('image', e.target.files[0]);
+
+    let axiosConfig = {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    };
+
+    try {
+      const result: any = await axios.post(
+        `${config.apiURL}/albums/upload`,
+        formData,
+        axiosConfig
+      );
+
+      setSelectedFile(result.data.data.imageKey);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <IonPage>
@@ -223,6 +247,17 @@ const Group: React.FC = () => {
           <IonContent>
             <form onSubmit={createNewAlbum} className="createGroup_form">
               <IonItem>
+                <input type="file" onChange={uploadFile} />
+              </IonItem>
+
+              {selectedFile && (
+                <img
+                  src={`${config.apiURL}/image/${selectedFile}`}
+                  alt="uploaded album pic"
+                />
+              )}
+
+              <IonItem>
                 <IonLabel position="floating">Title</IonLabel>
                 <IonInput
                   value={groupTitle}
@@ -236,12 +271,6 @@ const Group: React.FC = () => {
                   value={groupDescription}
                   onIonChange={(e: any) => setGroupDescription(e.detail.value)}
                 ></IonInput>
-              </IonItem>
-              <IonItem>
-                <input
-                  type="file"
-                  onChange={(e: any) => setSelectedFile(e.target.files[0])}
-                />
               </IonItem>
 
               <IonButton type="submit" expand="full">

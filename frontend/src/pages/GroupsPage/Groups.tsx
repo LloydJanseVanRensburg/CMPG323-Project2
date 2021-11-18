@@ -19,11 +19,15 @@ import {
   IonToolbar,
 } from '@ionic/react';
 
+// Axios
+import axios from 'axios';
+import { config } from '../../constants/config';
+
 // Styling & Assets
-import './Groups.css';
 import { GroupsContext } from '../../context/Groups/groupsContext';
 import GroupsList from '../../components/GroupsList/GroupsList';
 import { closeOutline } from 'ionicons/icons';
+import './Groups.css';
 
 const Groups = () => {
   const {
@@ -58,7 +62,31 @@ const Groups = () => {
     await createNewGroup(groupData);
     setGroupTitle('');
     setGroupDescription('');
+    setSelectedFile(null);
     setShowModal(false);
+  };
+
+  const uploadFile = async (e: any) => {
+    const formData = new FormData();
+    formData.append('image', e.target.files[0]);
+
+    let axiosConfig = {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    };
+
+    try {
+      const result: any = await axios.post(
+        `${config.apiURL}/groups/upload`,
+        formData,
+        axiosConfig
+      );
+
+      setSelectedFile(result.data.data.imageKey);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -123,6 +151,17 @@ const Groups = () => {
           <IonContent>
             <form onSubmit={createGroupHandler} className="createGroup_form">
               <IonItem>
+                <input type="file" onChange={uploadFile} />
+              </IonItem>
+
+              {selectedFile && (
+                <img
+                  src={`${config.apiURL}/image/${selectedFile}`}
+                  alt="uploaded group profile"
+                />
+              )}
+
+              <IonItem>
                 <IonLabel position="floating">Title</IonLabel>
                 <IonInput
                   value={groupTitle}
@@ -136,12 +175,6 @@ const Groups = () => {
                   value={groupDescription}
                   onIonChange={(e: any) => setGroupDescription(e.detail.value)}
                 ></IonInput>
-              </IonItem>
-              <IonItem>
-                <input
-                  type="file"
-                  onChange={(e: any) => setSelectedFile(e.target.files[0])}
-                />
               </IonItem>
 
               <IonButton disabled={addGroupLoading} type="submit" expand="full">

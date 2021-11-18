@@ -63,17 +63,12 @@ const GroupsState: React.FC = ({ children }) => {
   };
 
   const createNewGroup = async (data: any) => {
-    const formData = new FormData();
-
-    formData.append('title', data.title);
-    formData.append('description', data.description);
-    formData.append('image', data.image);
-
+    const GroupData = data;
     try {
       dispatch({ type: actionTypes.ADD_NEW_GROUP_LOADING });
 
-      let token = localStorage.getItem('authToken');
-      let axiosConfig = {
+      const token = localStorage.getItem('authToken');
+      const axiosConfig = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -81,7 +76,7 @@ const GroupsState: React.FC = ({ children }) => {
 
       const response: any = await axios.post(
         `${config.apiURL}/groups`,
-        formData,
+        GroupData,
         axiosConfig
       );
 
