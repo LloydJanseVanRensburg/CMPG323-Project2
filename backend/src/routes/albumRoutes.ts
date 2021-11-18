@@ -1,6 +1,7 @@
 import express from 'express';
 import { AlbumControllers } from '../controllers/AlbumControllers';
 import { AuthMiddleware } from '../middleware/AuthMiddleware';
+import { upload } from '../middleware/FileUploadMiddleware';
 
 const router = express.Router();
 
@@ -11,6 +12,16 @@ router.post(
   '/group-albums',
   AuthMiddleware.auth,
   AlbumControllers.getAllGroupAlbums
+);
+
+// @route   -   /api/v1/albums/upload
+// @desc    -   POST upload album profile picture
+// @access  -   Private
+router.post(
+  '/upload',
+  AuthMiddleware.auth,
+  upload.single('image'),
+  AlbumControllers.uploadAlbumImage
 );
 
 // @route   -   /api/v1/albums

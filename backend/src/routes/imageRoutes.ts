@@ -1,6 +1,5 @@
 import express from 'express';
 import { ImageControllers } from '../controllers/ImageControllers';
-import { AuthMiddleware } from '../middleware/AuthMiddleware';
 
 const router = express.Router();
 

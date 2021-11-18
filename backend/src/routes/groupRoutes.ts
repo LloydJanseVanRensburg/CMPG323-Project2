@@ -1,8 +1,19 @@
 import express from 'express';
 import { GroupControllers } from '../controllers/GroupControllers';
 import { AuthMiddleware } from '../middleware/AuthMiddleware';
+import { upload } from '../middleware/FileUploadMiddleware';
 
 const router = express.Router();
+
+// @route   -   /api/v1/groups
+// @desc    -   POST upload group profile picture to AWS S3
+// @access  -   Private
+router.post(
+  '/upload',
+  AuthMiddleware.auth,
+  upload.single('image'),
+  GroupControllers.uploadProfile
+);
 
 // @route   -   /api/v1/groups
 // @desc    -   GET fetch all groups

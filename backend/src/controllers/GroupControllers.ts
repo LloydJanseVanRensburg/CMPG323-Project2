@@ -5,6 +5,9 @@ import { Op } from 'sequelize';
 import { httpStatusCode } from '../constants/httpStatusCodes';
 import { ROLE } from '../constants/groupMemberRoles';
 import { InviteService } from '../services/InviteService';
+import { ImageProcessing } from '../services/ImageProcessing';
+import { uploadFile } from '../middleware/FileUploadMiddleware';
+import { unlinkFile } from '../utils/deleteFiles';
 
 const db = require('../models');
 
@@ -34,14 +37,14 @@ export class GroupControllers {
       const { id: userId } = req.user;
 
       // Get Body Data and File
-      const { title, description } = req.body;
+      const { title, description, image } = req.body;
 
       // Creating Group
       const newGroup = await db.group.create({
         owner: userId,
         title,
         description,
-        groupPicture: 'ea83409a099cfe26db0a435faf362b31',
+        groupPicture: image || 'ea83409a099cfe26db0a435faf362b31',
         memberCount: 1,
       });
 
@@ -296,6 +299,38 @@ export class GroupControllers {
       res.status(httpStatusCode.OK).json({
         success: true,
         message: 'Left group',
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  static async uploadProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log(req.file);
+
+      if (!req.file) {
+        next(BaseException.notFileFound());
+        return;
+      }
+
+      const optimizedImageBuffer = await ImageProcessing.optimize(
+        req.file.path
+      );
+
+      const uploadResult = await uploadFile(
+        optimizedImageBuffer,
+        req.file.originalname
+      );
+
+      await unlinkFile(req.file.path);
+
+      res.status(httpStatusCode.CREATED).json({
+        success: true,
+        data: {
+          imageKey: uploadResult.Key,
+        },
+        message: 'Group profile uploaded',
       });
     } catch (error: any) {
       next(error);

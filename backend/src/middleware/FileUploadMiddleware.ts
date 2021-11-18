@@ -13,7 +13,7 @@ export function uploadFile(fileBuffer: Buffer, filename: string) {
   const uploadParams = {
     Bucket: process.env.AWS_S3_BUCKET!,
     Body: fileBuffer,
-    Key: filename,
+    Key: Date.now() + '_' + filename,
   };
 
   return s3.upload(uploadParams).promise();

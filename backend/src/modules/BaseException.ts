@@ -24,6 +24,13 @@ export class BaseException extends Error {
     return new BaseException('No invite found', 404);
   }
 
+  static notFileFound() {
+    return new BaseException(
+      'No file found, please provide file',
+      httpStatusCode.BAD_REQUEST
+    );
+  }
+
   static invalidRequestBody() {
     return new BaseException(
       'Invalid request body',
