@@ -42,6 +42,15 @@ export const validateGetGroupAlbumBody = (body: any) => {
   );
 };
 
+export const validateGetAlbumPostsBody = (body: any) => {
+  return (
+    isDefined(body) &&
+    objectLength(body) > 0 &&
+    isDefined(body.albumId) &&
+    isString(body.albumId)
+  );
+};
+
 export const validateUpdateAlbumBody = (body: any) => {
   return (
     (isDefined(body) &&
@@ -60,6 +69,8 @@ export const validateCreateAlbumBody = (body: any) => {
     isString(body.groupId) &&
     isDefined(body.title) &&
     isString(body.title) &&
+    isDefined(body.color) &&
+    isString(body.color) &&
     isDefined(body.description) &&
     isString(body.description)
   );

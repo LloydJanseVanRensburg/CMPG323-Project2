@@ -63,7 +63,7 @@ export class AlbumControllers {
 
       // @ts-ignore
       const { id: userId } = req.user;
-      const { groupId, title, description } = req.body;
+      const { groupId, title, description, color } = req.body;
 
       // Check that group exists
       const foundGroup = await db.group.findByPk(groupId);
@@ -91,6 +91,7 @@ export class AlbumControllers {
         description,
         creator: userId,
         groupId,
+        color,
       });
 
       res.status(httpStatusCode.CREATED).json({

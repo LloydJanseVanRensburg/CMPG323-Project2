@@ -4,11 +4,37 @@ import { BaseException } from '../modules/BaseException';
 import {
   validateCreatePostBody,
   validateUpdatePostBody,
+  validateGetAlbumPostsBody,
 } from '../utils/requestValidations';
 
 const db = require('../models');
 
 export class PostControllers {
+  static async getAllAlbumPosts(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      if (!validateGetAlbumPostsBody(req.body)) {
+        next(BaseException.invalidRequestBody());
+        return;
+      }
+
+      const { albumId } = req.body;
+
+      const foundAlbumPosts = await db.post.findAll({ where: { albumId } });
+
+      res.status(httpStatusCode.OK).json({
+        success: true,
+        count: foundAlbumPosts.length,
+        data: foundAlbumPosts,
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
   static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const posts = await db.post.findAll();

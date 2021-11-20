@@ -4,6 +4,15 @@ import { AuthMiddleware } from '../middleware/AuthMiddleware';
 
 const router = express.Router();
 
+// @route   -   /api/v1/posts/album-posts
+// @desc    -   GET fetch all posts
+// @access  -   Private
+router.post(
+  '/album-posts',
+  AuthMiddleware.auth,
+  PostControllers.getAllAlbumPosts
+);
+
 // @route   -   /api/v1/posts
 // @desc    -   GET fetch all posts
 // @access  -   Private

@@ -22,6 +22,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
       type: DataTypes.UUID,
       allowNull: false,
     },
+    color: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   });
 
   Album.associate = (models: any) => {
