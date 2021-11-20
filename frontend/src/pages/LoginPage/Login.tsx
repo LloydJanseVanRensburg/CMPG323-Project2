@@ -8,15 +8,13 @@ import { Redirect } from 'react-router-dom';
 import {
   IonButton,
   IonContent,
-  IonHeader,
   IonInput,
   IonItem,
   IonLabel,
   IonPage,
+  IonRouterLink,
   IonSpinner,
-  IonTitle,
   IonToast,
-  IonToolbar,
 } from '@ionic/react';
 
 // Ionic Icons
@@ -69,11 +67,6 @@ const Login = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Login</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent fullscreen>
         <IonToast
           isOpen={loginUserError !== ''}
@@ -93,51 +86,54 @@ const Login = () => {
           ]}
         />
 
-        <form className="form">
-          <IonItem className="ion-margin-top">
-            <IonLabel position="floating">Email</IonLabel>
-            <IonInput
-              type="email"
-              value={email}
-              onIonChange={(e) => setEmail(e.detail.value!)}
-              ref={emailInputRef}
-            ></IonInput>
-          </IonItem>
+        <div className="login__container">
+          <img
+            className="login__backgroundimage"
+            src="/background-image.png"
+            alt=""
+          />
+          <div className="login__layover"></div>
+          <img className="login__applogo" src="/app-logo.png" alt="" />
+          <h2 className="login__welcome">Welcome to</h2>
+          <h1 className="login__appname">Digital Share</h1>
+          <form className="login__form">
+            <div className="login__form-background"></div>
+            <h2 className="login__title">Login</h2>
+            <IonItem className="ion-margin-top">
+              <IonLabel position="floating">Email</IonLabel>
+              <IonInput
+                type="email"
+                value={email}
+                onIonChange={(e) => setEmail(e.detail.value!)}
+                ref={emailInputRef}
+              ></IonInput>
+            </IonItem>
 
-          <IonItem className="ion-margin-top">
-            <IonLabel position="floating">Password</IonLabel>
-            <IonInput
-              type="password"
-              value={password}
-              onIonChange={(e) => setPassword(e.detail.value!)}
-              ref={passwordInputRef}
-            ></IonInput>
-          </IonItem>
+            <IonItem className="ion-margin-top">
+              <IonLabel position="floating">Password</IonLabel>
+              <IonInput
+                type="password"
+                value={password}
+                onIonChange={(e) => setPassword(e.detail.value!)}
+                ref={passwordInputRef}
+              ></IonInput>
+            </IonItem>
 
-          <IonButton
-            disabled={loginUserLoading}
-            expand="full"
-            color="primary"
-            onClick={loginHandler}
-            className="ion-margin-top"
-          >
-            {loginUserLoading ? <IonSpinner name="circles" /> : 'Login'}
-          </IonButton>
+            <IonButton
+              disabled={loginUserLoading}
+              expand="full"
+              onClick={loginHandler}
+              className="login__actionbtn"
+            >
+              {loginUserLoading ? <IonSpinner name="circles" /> : 'Login'}
+            </IonButton>
 
-          <div className="form_or">
-            <p className="form_or-text">OR</p>
-            <p className="form_or-line"></p>
-          </div>
-
-          <IonButton
-            disabled={loginUserLoading}
-            routerLink="/register"
-            expand="full"
-            color="dark"
-          >
-            Register
-          </IonButton>
-        </form>
+            <div className="login__registerActions">
+              <p>Don't have an account?</p>
+              <IonRouterLink routerLink="/register">Sign up</IonRouterLink>
+            </div>
+          </form>
+        </div>
       </IonContent>
     </IonPage>
   );

@@ -27,12 +27,15 @@ import './theme/global.css';
 import AuthState from './context/Auth/AuthState';
 import GroupsState from './context/Groups/GroupsState';
 import GroupState from './context/Group/GroupState';
+import AlbumState from './context/Album/AlbumState';
 
 ReactDOM.render(
   <AuthState>
     <GroupsState>
       <GroupState>
-        <App />
+        <AlbumState>
+          <App />
+        </AlbumState>
       </GroupState>
     </GroupsState>
   </AuthState>,

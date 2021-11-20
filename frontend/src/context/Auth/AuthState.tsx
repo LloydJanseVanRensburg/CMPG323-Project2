@@ -50,14 +50,11 @@ const AuthState: React.FC = ({ children }) => {
         axiosConfig
       );
 
+      const user = result.data.data;
+
       dispatch({
         type: actionTypes.GET_AUTH_USER_SUCCESS,
-        payload: {
-          id: result.data.data.id,
-          email: result.data.data.email,
-          name: result.data.data.username,
-          profilePicture: result.data.data.profilePicture,
-        },
+        payload: user,
       });
     } catch (error: any) {
       // Remove Auth Token from localstorage
@@ -86,16 +83,13 @@ const AuthState: React.FC = ({ children }) => {
         axiosConfig
       );
 
+      const user = result.data.data.user;
+
       if (result.data.success) {
         localStorage.setItem('authToken', result.data.data.token);
         dispatch({
           type: actionTypes.REGISTER_USER_SUCCESS,
-          payload: {
-            id: result.data.data.user.id,
-            email: result.data.data.user.email,
-            name: result.data.data.user.name,
-            profilePicture: result.data.data.user.profilePicture,
-          },
+          payload: user,
         });
       }
     } catch (error: any) {
@@ -123,16 +117,13 @@ const AuthState: React.FC = ({ children }) => {
         axiosConfig
       );
 
+      const user = result.data.data.user;
+
       if (result.data.success) {
         localStorage.setItem('authToken', result.data.data.token);
         dispatch({
           type: actionTypes.LOGIN_USER_SUCCESS,
-          payload: {
-            id: result.data.data.user.id,
-            email: result.data.data.user.email,
-            name: result.data.data.user.name,
-            profilePicture: result.data.data.user.profilePicture,
-          },
+          payload: user,
         });
       }
     } catch (error: any) {

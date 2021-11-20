@@ -27,7 +27,7 @@ import {
 
 // Ionic Icons
 import {
-  closeOutline,
+  notifications,
   ellipsisHorizontal,
   ellipsisVertical,
 } from 'ionicons/icons';
@@ -42,8 +42,6 @@ import './Home.css';
 import { config } from '../../constants/config';
 
 const Home: React.FC = () => {
-  // const [showPopover, setShowPopover] = useState(false);
-
   const { userData, logoutUser } = useContext(AuthContext);
 
   const [popoverState, setShowPopover] = useState({
@@ -59,7 +57,9 @@ const Home: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Account</IonTitle>
+          <IonButtons slot="start" onClick={logoutHandler}>
+            <IonButton>Logout</IonButton>
+          </IonButtons>
 
           <IonButtons slot="end">
             <IonButton
@@ -76,6 +76,8 @@ const Home: React.FC = () => {
             </IonButton>
           </IonButtons>
 
+          <IonTitle className="homepage__profileTitle">Profile</IonTitle>
+
           <IonPopover
             cssClass="my-custom-class"
             event={popoverState.event}
@@ -88,72 +90,36 @@ const Home: React.FC = () => {
               <IonItem>
                 <IonLabel>Edit Account</IonLabel>
               </IonItem>
-              <IonItem onClick={logoutHandler}>
-                <IonLabel>Logout</IonLabel>
-              </IonItem>
             </IonList>
           </IonPopover>
         </IonToolbar>
       </IonHeader>
+
       <IonContent fullscreen>
-        <IonItemDivider>
-          <IonLabel>Account Info</IonLabel>
-        </IonItemDivider>
-
         <div className="home__accountPfp">
-          <IonAvatar slot="start">
-            <img
-              src={`${config.apiURL}/image/${userData?.profilePicture}`}
-              alt="user profile"
-            />
-          </IonAvatar>
+          <div className="home__avatarpfp">
+            <img src={`/user-default-pfp.png`} alt="user profile" />
+          </div>
         </div>
 
-        <div className="home__accountInfo">
-          <IonGrid>
-            <IonRow>
-              <IonCol>
-                <IonText>User Name:</IonText>
-              </IonCol>
-              <IonCol>
-                <IonText>{userData.name}</IonText>
-              </IonCol>
-            </IonRow>
-            <IonRow>
-              <IonCol>
-                <IonText>Email Address:</IonText>
-              </IonCol>
-              <IonCol>
-                <IonText>{userData.email}</IonText>
-              </IonCol>
-            </IonRow>
-            <IonRow>
-              <IonCol>
-                <IonText>Phone Number:</IonText>
-              </IonCol>
-              <IonCol>
-                <IonText>{userData.phone}</IonText>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
+        <div className="home__account-info">
+          <div className="home__account-info1">
+            <h2>{userData?.username}</h2>
+            <p>Something about me.</p>
+          </div>
+
+          <div className="home__account-info2">
+            <p>Email</p>
+            <p>{userData?.email}</p>
+          </div>
+
+          <div className="home__account-info3">
+            <IonIcon icon={notifications} />
+            <p>Notifications</p>
+          </div>
         </div>
 
-        <IonItemDivider>
-          <IonLabel>Account Notifications</IonLabel>
-        </IonItemDivider>
-
-        <IonList>
-          <IonItem>
-            <IonAvatar slot="start">
-              <img src="./avatar-han.png" alt="" />
-            </IonAvatar>
-            <IonLabel>
-              <h5>Han</h5>
-              <h2>Why is this here?</h2>
-              <small>2 days ago</small>
-            </IonLabel>
-          </IonItem>
-        </IonList>
+        <IonList></IonList>
       </IonContent>
     </IonPage>
   );

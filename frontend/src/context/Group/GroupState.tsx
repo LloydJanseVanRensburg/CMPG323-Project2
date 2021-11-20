@@ -17,6 +17,10 @@ const GroupState: React.FC = ({ children }) => {
     searchAlbums: [],
     albumDataLoading: false,
     albumDataError: '',
+
+    // Add Album state
+    addAlbumLoading: false,
+    addAlbumError: '',
   };
 
   const [state, dispatch] = useReducer(groupReducer, initialGroupState);
@@ -51,18 +55,18 @@ const GroupState: React.FC = ({ children }) => {
 
   const getGroupAlbumData = async (groupId: string) => {
     try {
-      let token = localStorage.getItem('authData');
+      let token = localStorage.getItem('authToken');
       let axiosConfig = {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       };
 
       dispatch({ type: actionTypes.GET_GROUP_ALBUMS_LOADING });
 
-      const response: any = await axios.get(
-        `${config.apiURL}/albums/search`,
+      const response: any = await axios.post(
+        `${config.apiURL}/albums/group-albums`,
+        { groupId: groupId },
         axiosConfig
       );
 
@@ -85,6 +89,37 @@ const GroupState: React.FC = ({ children }) => {
     dispatch({ type: actionTypes.SEARCH_ALBUMS, payload: e.detail.value });
   };
 
+  const createNewAlbum = async (data: any) => {
+    const AlbumData = data;
+    try {
+      dispatch({ type: actionTypes.ADD_NEW_ALBUM_LOADING });
+
+      const token = localStorage.getItem('authToken');
+
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response: any = await axios.post(
+        `${config.apiURL}/albums`,
+        AlbumData,
+        axiosConfig
+      );
+
+      const data = response.data.data;
+
+      dispatch({ type: actionTypes.ADD_NEW_ALBUM_SUCCESS, payload: data });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+
+      dispatch({ type: actionTypes.ADD_NEW_ALBUM_FAIL, payload: message });
+    }
+  };
+
   return (
     <GroupContext.Provider
       value={{
@@ -96,6 +131,7 @@ const GroupState: React.FC = ({ children }) => {
         getGroupAlbumData,
         clearGroupData,
         searchAlbumsHandler,
+        createNewAlbum,
       }}
     >
       {children}

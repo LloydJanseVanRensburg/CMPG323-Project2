@@ -6,7 +6,6 @@ import { Redirect, Route } from 'react-router-dom';
 
 // Ionic Components
 import {
-  IonBadge,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
@@ -23,6 +22,7 @@ import Group from '../../pages/GroupPage/Group';
 import Groups from '../../pages/GroupsPage/Groups';
 import Home from '../../pages/HomePage/Home';
 import { AuthContext } from '../../context/Auth/authContext';
+import AlbumPage from '../../pages/AlbumPage/AlbumPage';
 
 const LoggedInApp = () => {
   const { isLoggedIn } = useContext(AuthContext);
@@ -37,6 +37,7 @@ const LoggedInApp = () => {
         <Route exact path="/my/account" component={Home} />
         <Route exact path="/my/groups" component={Groups} />
         <Route exact path="/my/groups/:groupId" component={Group} />
+        <Route exact path="/my/albums/:albumId" component={AlbumPage} />
       </IonRouterOutlet>
       <IonTabBar slot="bottom">
         <IonTabButton tab="account" href="/my/account">

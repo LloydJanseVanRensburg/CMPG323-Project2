@@ -13,6 +13,7 @@ import {
   IonItem,
   IonLabel,
   IonPage,
+  IonRouterLink,
   IonSpinner,
   IonTitle,
   IonToast,
@@ -75,11 +76,6 @@ const Register = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Register</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent fullscreen>
         <IonToast
           isOpen={registerUserError !== ''}
@@ -99,67 +95,61 @@ const Register = () => {
           ]}
         />
 
-        <form className="form">
-          <IonItem className="ion-margin-top">
-            <IonLabel position="floating">Username</IonLabel>
-            <IonInput
-              type="text"
-              value={username}
-              onIonChange={(e) => setUsername(e.detail.value!)}
-            ></IonInput>
-          </IonItem>
+        <div className="register__container">
+          <img
+            className="register__backgroundimage"
+            src="/background-image.png"
+            alt=""
+          />
+          <div className="register__layover"></div>
+          <img className="register__applogo" src="/app-logo.png" alt="" />
+          <h2 className="register__welcome">Welcome to</h2>
+          <h1 className="register__appname">Digital Share</h1>
+          <form className="register__form">
+            <div className="register__form-background"></div>
+            <h2 className="register__title">Sign Up</h2>
+            <IonItem className="ion-margin-top">
+              <IonLabel position="floating">Username</IonLabel>
+              <IonInput
+                type="text"
+                value={username}
+                onIonChange={(e) => setUsername(e.detail.value!)}
+              ></IonInput>
+            </IonItem>
 
-          <IonItem className="ion-margin-top">
-            <IonLabel position="floating">Email</IonLabel>
-            <IonInput
-              type="email"
-              value={email}
-              onIonChange={(e) => setEmail(e.detail.value!)}
-            ></IonInput>
-          </IonItem>
+            <IonItem className="ion-margin-top">
+              <IonLabel position="floating">Email</IonLabel>
+              <IonInput
+                type="email"
+                value={email}
+                onIonChange={(e) => setEmail(e.detail.value!)}
+              ></IonInput>
+            </IonItem>
 
-          <IonItem className="ion-margin-top">
-            <IonLabel position="floating">Password</IonLabel>
-            <IonInput
-              type="password"
-              value={password}
-              onIonChange={(e) => setPassword(e.detail.value!)}
-            ></IonInput>
-          </IonItem>
+            <IonItem className="ion-margin-top">
+              <IonLabel position="floating">Password</IonLabel>
+              <IonInput
+                type="password"
+                value={password}
+                onIonChange={(e) => setPassword(e.detail.value!)}
+              ></IonInput>
+            </IonItem>
 
-          <IonItem className="ion-margin-top">
-            <IonLabel position="floating">Confirm Password</IonLabel>
-            <IonInput
-              type="password"
-              value={confirmPassword}
-              onIonChange={(e) => setConfirmPassword(e.detail.value!)}
-            ></IonInput>
-          </IonItem>
+            <IonButton
+              disabled={registerUserLoading}
+              expand="full"
+              onClick={registerHandler}
+              className="register__actionbtn"
+            >
+              {registerUserLoading ? <IonSpinner name="circles" /> : 'Sign Up'}
+            </IonButton>
 
-          <IonButton
-            disabled={registerUserLoading}
-            expand="full"
-            color="primary"
-            onClick={registerHandler}
-            className="ion-margin-top"
-          >
-            {registerUserLoading ? <IonSpinner name="circles" /> : 'Register'}
-          </IonButton>
-
-          <div className="form_or">
-            <p className="form_or-text">OR</p>
-            <p className="form_or-line"></p>
-          </div>
-
-          <IonButton
-            disabled={registerUserLoading}
-            routerLink="/login"
-            expand="full"
-            color="dark"
-          >
-            Login
-          </IonButton>
-        </form>
+            <div className="register__registerActions">
+              <p>Already have an account?</p>
+              <IonRouterLink routerLink="/login">Login</IonRouterLink>
+            </div>
+          </form>
+        </div>
       </IonContent>
     </IonPage>
   );

@@ -1,0 +1,27 @@
+.albumCard {
+  padding: 5px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin: 2px;
+}
+
+.albumCard__colorCircle {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.albumCard h1 {
+  margin: 0;
+  font-size: 1rem;
+  text-transform: capitalize;
+}

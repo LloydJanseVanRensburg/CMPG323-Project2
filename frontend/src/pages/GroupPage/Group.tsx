@@ -1,5 +1,5 @@
 // Core React
-import { useContext, useRef, useState } from 'react';
+import { useContext, useRef, useState, useEffect } from 'react';
 
 // React Router Dom
 import { useParams, useHistory } from 'react-router-dom';
@@ -31,9 +31,11 @@ import {
   IonSpinner,
   IonTitle,
   IonToolbar,
+  useIonViewDidEnter,
   useIonViewDidLeave,
-  useIonViewWillEnter,
 } from '@ionic/react';
+
+import { CirclePicker, ColorResult } from 'react-color';
 
 // Styling & Assets
 import './Group.css';
@@ -44,8 +46,7 @@ import {
   ellipsisVertical,
 } from 'ionicons/icons';
 import { GroupsContext } from '../../context/Groups/groupsContext';
-import GroupCard from '../../components/GroupCard/GroupCard';
-import axios from 'axios';
+import AlbumCard from '../../components/AlbumCard/AlbumCard';
 
 const Group: React.FC = () => {
   const history = useHistory();
@@ -54,23 +55,16 @@ const Group: React.FC = () => {
     showPopover: false,
     event: undefined,
   });
+
   const [showAlert1, setShowAlert1] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [groupTitle, setGroupTitle] = useState('');
-  const [groupDescription, setGroupDescription] = useState('');
-  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [albumTitle, setAlbumTitle] = useState('');
+  const [albumDescription, setAlbumDescription] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
   const searchInput: any = useRef('');
 
-  const logoutHandler = async () => {
-    console.log('running');
-    setShowPopover({
-      showPopover: false,
-      event: undefined,
-    });
-    setShowAlert1(true);
-  };
-
   const { groupId }: any = useParams();
+
   const {
     getGroupData,
     groupData,
@@ -78,41 +72,51 @@ const Group: React.FC = () => {
     clearGroupData,
     searchAlbums,
     searchAlbumsHandler,
+    createNewAlbum,
+    getGroupAlbumData,
   } = useContext(GroupContext);
 
   const { deleteGroup, deleteGroupLoading } = useContext(GroupsContext);
 
-  useIonViewWillEnter(() => {
-    getGroupData(groupId);
-  });
+  useIonViewDidEnter(async () => {
+    await getGroupData(groupId);
+    await getGroupAlbumData(groupId);
+  }, [groupId]);
 
   useIonViewDidLeave(() => {
     clearGroupData();
   });
 
-  const createNewAlbum = () => {};
+  const createAblum = async (e: any) => {
+    e.preventDefault();
 
-  const uploadFile = async (e: any) => {
-    const formData = new FormData();
-    formData.append('image', e.target.files[0]);
+    if (!albumTitle) {
+      console.log('No album title provided');
+      return;
+    }
 
-    let axiosConfig = {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      },
+    if (!albumDescription) {
+      console.log('No album description provided');
+      return;
+    }
+
+    const albumData = {
+      title: albumTitle,
+      description: albumDescription,
+      groupId: groupData.id,
+      color: selectedColor,
     };
 
-    try {
-      const result: any = await axios.post(
-        `${config.apiURL}/albums/upload`,
-        formData,
-        axiosConfig
-      );
+    await createNewAlbum(albumData);
 
-      setSelectedFile(result.data.data.imageKey);
-    } catch (error) {
-      console.log(error);
-    }
+    setAlbumTitle('');
+    setAlbumDescription('');
+    setSelectedColor('');
+    setShowModal(false);
+  };
+
+  const editGroupHandler = () => {
+    console.log('Editing group...');
   };
 
   return (
@@ -122,7 +126,7 @@ const Group: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/my/groups" />
           </IonButtons>
-          <IonTitle>Group Name</IonTitle>
+          <IonTitle>Group</IonTitle>
 
           <IonButtons slot="end">
             <IonButton
@@ -148,10 +152,15 @@ const Group: React.FC = () => {
             }
           >
             <IonList>
-              <IonItem>
+              <IonItem onClick={editGroupHandler}>
                 <IonLabel>Edit Group</IonLabel>
               </IonItem>
-              <IonItem onClick={logoutHandler}>
+              <IonItem
+                onClick={() => {
+                  setShowAlert1(true);
+                  setShowPopover({ showPopover: false, event: undefined });
+                }}
+              >
                 <IonLabel>Delete Group</IonLabel>
               </IonItem>
             </IonList>
@@ -166,7 +175,7 @@ const Group: React.FC = () => {
           onDidDismiss={() => setShowAlert1(false)}
           cssClass="my-custom-class"
           header={'Confirm!'}
-          message={'Message <strong>text</strong>!!!'}
+          message={'Are you  sure you want to delete group'}
           buttons={[
             {
               text: 'Cancel',
@@ -204,6 +213,7 @@ const Group: React.FC = () => {
             <div className="group__info">
               <h3>{groupData.title}</h3>
               <p>{groupData.description}</p>
+              <p>Members {groupData.memberCount}</p>
             </div>
 
             <IonSearchbar
@@ -225,7 +235,7 @@ const Group: React.FC = () => {
 
                 {searchAlbums.map((album: any) => (
                   <IonCol key={album.id} size="3">
-                    <GroupCard groupData={album} />
+                    <AlbumCard albumData={album} />
                   </IonCol>
                 ))}
               </IonRow>
@@ -245,31 +255,30 @@ const Group: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <form onSubmit={createNewAlbum} className="createGroup_form">
+            <form onSubmit={createAblum} className="createGroup_form">
               <IonItem>
-                <input type="file" onChange={uploadFile} />
-              </IonItem>
-
-              {selectedFile && (
-                <img
-                  src={`${config.apiURL}/image/${selectedFile}`}
-                  alt="uploaded album pic"
+                <CirclePicker
+                  color={selectedColor}
+                  onChangeComplete={(color: ColorResult, e: any) => {
+                    setSelectedColor(color.hex);
+                  }}
                 />
-              )}
+              </IonItem>
 
               <IonItem>
                 <IonLabel position="floating">Title</IonLabel>
                 <IonInput
-                  value={groupTitle}
-                  onIonChange={(e: any) => setGroupTitle(e.detail.value)}
+                  value={albumTitle}
+                  onIonChange={(e: any) => setAlbumTitle(e.detail.value)}
                 ></IonInput>
               </IonItem>
+
               <IonItem>
                 <IonLabel position="floating">Description</IonLabel>
                 <IonInput
                   multiple
-                  value={groupDescription}
-                  onIonChange={(e: any) => setGroupDescription(e.detail.value)}
+                  value={albumDescription}
+                  onIonChange={(e: any) => setAlbumDescription(e.detail.value)}
                 ></IonInput>
               </IonItem>
 

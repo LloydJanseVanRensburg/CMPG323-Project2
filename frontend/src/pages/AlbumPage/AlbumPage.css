@@ -1,0 +1,15 @@
+.albumpage__postslist {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.albumpage__colorbar {
+  height: 100px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  text-transform: capitalize;
+}
