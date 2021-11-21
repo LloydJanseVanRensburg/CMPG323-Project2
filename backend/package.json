@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:build": "tsc -w",
-    "start:run": "nodemon dist/index.js",
-    "start": "concurrently npm:start:*",
+    "build": "tsc",
     "dev": "nodemon src/index.ts"
   },
   "keywords": [],
