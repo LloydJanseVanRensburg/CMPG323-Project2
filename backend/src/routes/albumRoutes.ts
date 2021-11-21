@@ -14,16 +14,6 @@ router.post(
   AlbumControllers.getAllGroupAlbums
 );
 
-// @route   -   /api/v1/albums/upload
-// @desc    -   POST upload album profile picture
-// @access  -   Private
-router.post(
-  '/upload',
-  AuthMiddleware.auth,
-  upload.single('image'),
-  AlbumControllers.uploadAlbumImage
-);
-
 // @route   -   /api/v1/albums
 // @desc    -   GET fetch all albums
 // @access  -   Private

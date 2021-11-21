@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { httpStatusCode } from '../constants/httpStatusCodes';
+import { uploadFile } from '../middleware/FileUploadMiddleware';
 import { BaseException } from '../modules/BaseException';
+import { ImageProcessing } from '../services/ImageProcessing';
+import { unlinkFile } from '../utils/deleteFiles';
 import {
   validateCreatePostBody,
   validateUpdatePostBody,
@@ -211,6 +214,47 @@ export class PostControllers {
         success: true,
         data: null,
         message: 'Post deleted',
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  static async uploadPostImages(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      if (!req.files) {
+        next(BaseException.notFileFound());
+        return;
+      }
+
+      const uploadedFiles = [];
+      const files: any = req.files;
+
+      for (let i = 0; i < files.length; i++) {
+        const optimizedImageBuffer = await ImageProcessing.optimize(
+          files[i].path
+        );
+
+        const uploadResult = await uploadFile(
+          optimizedImageBuffer,
+          files[i].originalname
+        );
+
+        uploadedFiles.push(uploadResult.Key);
+
+        await unlinkFile(files[i].path);
+      }
+
+      res.status(httpStatusCode.CREATED).json({
+        success: true,
+        data: {
+          imageKeys: uploadedFiles,
+        },
+        message: 'Post files uploaded',
       });
     } catch (error: any) {
       next(error);

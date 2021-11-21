@@ -194,38 +194,4 @@ export class AlbumControllers {
       next(error);
     }
   }
-
-  static async uploadAlbumImage(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      if (!req.file) {
-        next(BaseException.notFileFound());
-        return;
-      }
-
-      const optimizedImageBuffer = await ImageProcessing.optimize(
-        req.file.path
-      );
-
-      const uploadResult = await uploadFile(
-        optimizedImageBuffer,
-        req.file.originalname
-      );
-
-      await unlinkFile(req.file.path);
-
-      res.status(httpStatusCode.CREATED).json({
-        success: true,
-        data: {
-          imageKey: uploadResult.Key,
-        },
-        message: 'Album profile uploaded',
-      });
-    } catch (error: any) {
-      next(error);
-    }
-  }
 }

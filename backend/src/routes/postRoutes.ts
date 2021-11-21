@@ -1,6 +1,7 @@
 import express from 'express';
 import { PostControllers } from '../controllers/PostControllers';
 import { AuthMiddleware } from '../middleware/AuthMiddleware';
+import { upload } from '../middleware/FileUploadMiddleware';
 
 const router = express.Router();
 
@@ -11,6 +12,16 @@ router.post(
   '/album-posts',
   AuthMiddleware.auth,
   PostControllers.getAllAlbumPosts
+);
+
+// @route   -   /api/v1/posts/upload
+// @desc    -   POST upload post files
+// @access  -   Private
+router.post(
+  '/upload',
+  AuthMiddleware.auth,
+  upload.array('image'),
+  PostControllers.uploadPostImages
 );
 
 // @route   -   /api/v1/posts
