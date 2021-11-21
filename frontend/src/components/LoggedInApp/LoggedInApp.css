@@ -1,0 +1,21 @@
+.loggedInApp__iotabs {
+  background-color: #fff;
+}
+
+.loggedInApp__tabBar {
+  --background: #dfdfdf;
+  width: 100%;
+  max-width: 900px;
+  margin: auto !important;
+}
+
+.loggedInApp__tabBar > ion-tab-button {
+  color: #000;
+  font-size: 0.8rem;
+  font-weight: bold;
+  max-width: 450px;
+}
+
+.loggedInApp__tabBar > ion-tab-button:first-child {
+  border-right: 1px solid rgba(0, 0, 0, 0.3);
+}

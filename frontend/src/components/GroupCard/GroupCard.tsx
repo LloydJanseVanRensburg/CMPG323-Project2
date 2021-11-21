@@ -15,12 +15,12 @@ const GroupCard: React.FC<GroupData> = ({ groupData }) => {
       className="groupCard"
       onClick={() => history.push(`/my/groups/${groupData.id}`)}
     >
-      <IonAvatar>
+      <div className="groupCard__imageContainer">
         <img
           src={`${config.apiURL}/image/${groupData.groupPicture}`}
           alt="group profile"
         />
-      </IonAvatar>
+      </div>
 
       <p>{groupData.title}</p>
     </div>

@@ -1,5 +1,7 @@
 import { IonCol, IonContent, IonGrid, IonIcon, IonRow } from '@ionic/react';
 import { addOutline } from 'ionicons/icons';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/Auth/authContext';
 import GroupCard from '../GroupCard/GroupCard';
 import './GroupsList.css';
 
@@ -16,25 +18,53 @@ interface GroupsListProps {
 }
 
 const GroupsList: React.FC<GroupsListProps> = ({ groups, setShowModal }) => {
+  const { userData } = useContext(AuthContext);
+
   return (
-    <IonContent>
-      <IonGrid className="ion-padding">
+    <>
+      <IonGrid className="grouplist__grid">
+        <h4>Created by you</h4>
         <IonRow className="ion-align-items-center">
           <IonCol size="3">
             <div className="groupCard" onClick={() => setShowModal(true)}>
               <div>
-                <IonIcon icon={addOutline} />
+                <IonIcon size="large" icon={addOutline} />
               </div>
             </div>
           </IonCol>
-          {groups.map((group: any) => (
-            <IonCol key={group.id} size="3">
-              <GroupCard groupData={group} />
-            </IonCol>
-          ))}
+          {groups.map((group: any) => {
+            if (group.owner === userData.id) {
+              return (
+                <IonCol key={group.id} size="3">
+                  <GroupCard groupData={group} />
+                </IonCol>
+              );
+            } else {
+              return null;
+            }
+          })}
         </IonRow>
       </IonGrid>
-    </IonContent>
+
+      <hr className="grouplist__divider" />
+
+      <IonGrid className="grouplist__grid">
+        <h4>Following</h4>
+        <IonRow className="ion-align-items-center">
+          {groups.map((group: any) => {
+            if (group.owner !== userData.id) {
+              return (
+                <IonCol key={group.id} size="3">
+                  <GroupCard groupData={group} />
+                </IonCol>
+              );
+            } else {
+              return null;
+            }
+          })}
+        </IonRow>
+      </IonGrid>
+    </>
   );
 };
 

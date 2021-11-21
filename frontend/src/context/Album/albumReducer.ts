@@ -21,6 +21,25 @@ export const albumReducer = (state: any, action: any) => {
         albumDataError: action.payload,
       };
 
+    // GET ALBUM POSTS
+    case actionTypes.GET_ALBUM_POSTS_LOADING:
+      return {
+        ...state,
+        postsDataLoading: true,
+      };
+    case actionTypes.GET_ALBUM_POSTS_SUCCESS:
+      return {
+        ...state,
+        postsDataLoading: false,
+        albumPosts: action.payload,
+      };
+    case actionTypes.GET_ALBUM_POSTS_FAIL:
+      return {
+        ...state,
+        postsDataLoading: false,
+        postsDataError: action.payload,
+      };
+
     case actionTypes.CLEAR_ALBUM_DATA:
       return {
         ...state,

@@ -47,6 +47,7 @@ import {
 } from 'ionicons/icons';
 import { GroupsContext } from '../../context/Groups/groupsContext';
 import AlbumCard from '../../components/AlbumCard/AlbumCard';
+import { AlbumContext } from '../../context/Album/albumContext';
 
 const Group: React.FC = () => {
   const history = useHistory();
@@ -73,7 +74,10 @@ const Group: React.FC = () => {
     searchAlbums,
     searchAlbumsHandler,
     createNewAlbum,
+    albumDataLoading,
     getGroupAlbumData,
+    addAlbumLoading,
+    albumData,
   } = useContext(GroupContext);
 
   const { deleteGroup, deleteGroupLoading } = useContext(GroupsContext);
@@ -122,11 +126,11 @@ const Group: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar className="page__iontoolbartitle">
           <IonButtons slot="start">
             <IonBackButton defaultHref="/my/groups" />
           </IonButtons>
-          <IonTitle>Group</IonTitle>
+          <IonTitle className="page__Title">Group</IonTitle>
 
           <IonButtons slot="end">
             <IonButton
@@ -167,127 +171,160 @@ const Group: React.FC = () => {
           </IonPopover>
         </IonToolbar>
       </IonHeader>
+
       <IonContent fullscreen>
-        <IonLoading isOpen={deleteGroupLoading} />
+        <div className="content__container">
+          <IonLoading isOpen={deleteGroupLoading} />
 
-        <IonAlert
-          isOpen={showAlert1}
-          onDidDismiss={() => setShowAlert1(false)}
-          cssClass="my-custom-class"
-          header={'Confirm!'}
-          message={'Are you  sure you want to delete group'}
-          buttons={[
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              cssClass: 'secondary',
-              handler: (blah) => {
-                setShowPopover({ showPopover: false, event: undefined });
+          <IonAlert
+            isOpen={showAlert1}
+            onDidDismiss={() => setShowAlert1(false)}
+            cssClass="my-custom-class"
+            header={'Confirm!'}
+            message={'Are you  sure you want to delete group'}
+            buttons={[
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'secondary',
+                handler: (blah) => {
+                  setShowPopover({ showPopover: false, event: undefined });
+                },
               },
-            },
-            {
-              text: 'Okay',
-              handler: async () => {
-                await deleteGroup(groupId);
-                history.push('/my/groups');
+              {
+                text: 'Okay',
+                handler: async () => {
+                  await deleteGroup(groupId);
+                  history.push('/my/groups');
+                },
               },
-            },
-          ]}
-        />
+            ]}
+          />
 
-        {groupDataLoading && (
-          <div>
-            <IonSpinner name="circles" />
-          </div>
-        )}
-
-        {!groupDataLoading && groupData && (
-          <div>
-            <div className="group__groupPicture">
-              <img
-                src={`${config.apiURL}/image/${groupData.groupPicture}`}
-                alt=""
-              />
+          {groupDataLoading && (
+            <div className="loading_spinner">
+              <IonSpinner name="circles" />
             </div>
+          )}
 
-            <div className="group__info">
-              <h3>{groupData.title}</h3>
-              <p>{groupData.description}</p>
-              <p>Members {groupData.memberCount}</p>
-            </div>
+          {!groupDataLoading && groupData && (
+            <div className="group__maincontainer">
+              <div className="group__groupPicture">
+                <img
+                  src={`${config.apiURL}/image/${groupData.groupPicture}`}
+                  alt=""
+                />
+              </div>
 
-            <IonSearchbar
-              ref={searchInput}
-              value={searchInput.current?.value}
-              onIonChange={searchAlbumsHandler}
-              debounce={400}
-            ></IonSearchbar>
+              <div className="group__info">
+                <h2>{groupData.title}</h2>
+                <p>{groupData.description}</p>
+              </div>
 
-            <IonGrid className="ion-padding">
-              <IonRow className="ion-align-items-center">
-                <IonCol size="3">
-                  <div className="groupCard" onClick={() => setShowModal(true)}>
-                    <div>
-                      <IonIcon icon={addOutline} />
+              <div className="group__statsInfo">
+                <div>
+                  <p>{groupData?.memberCount}</p>
+                  <p>members</p>
+                </div>
+                <div>
+                  <p>{albumData.length}</p>
+                  <p>albums</p>
+                </div>
+              </div>
+
+              <IonSearchbar
+                ref={searchInput}
+                value={searchInput.current?.value}
+                onIonChange={searchAlbumsHandler}
+                debounce={400}
+              ></IonSearchbar>
+
+              <IonGrid className="ion-padding">
+                <IonRow className="ion-align-items-center">
+                  {albumDataLoading ? (
+                    <div className="loading_spinner">
+                      <IonSpinner name="circles" />
                     </div>
-                  </div>
-                </IonCol>
+                  ) : (
+                    <>
+                      <IonCol size="3">
+                        <div
+                          className="albumCard"
+                          onClick={() => setShowModal(true)}
+                        >
+                          <div>
+                            <IonIcon size="large" icon={addOutline} />
+                          </div>
+                        </div>
+                      </IonCol>
 
-                {searchAlbums.map((album: any) => (
-                  <IonCol key={album.id} size="3">
-                    <AlbumCard albumData={album} />
-                  </IonCol>
-                ))}
-              </IonRow>
-            </IonGrid>
-          </div>
-        )}
+                      {searchAlbums.map((album: any) => (
+                        <IonCol key={album.id} size="3">
+                          <AlbumCard albumData={album} />
+                        </IonCol>
+                      ))}
+                    </>
+                  )}
+                </IonRow>
+              </IonGrid>
+            </div>
+          )}
 
-        <IonModal isOpen={showModal} cssClass="my-custom-class">
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Create New Album</IonTitle>
-              <IonButtons slot="end">
-                <IonButton color="danger" onClick={() => setShowModal(false)}>
-                  Close
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <form onSubmit={createAblum} className="createGroup_form">
-              <IonItem>
+          <IonModal onDidDismiss={() => setShowModal(false)} isOpen={showModal}>
+            <IonHeader>
+              <IonToolbar>
+                <IonTitle className="page__Title">Create Album</IonTitle>
+                <IonButtons slot="end">
+                  <IonButton
+                    disabled={addAlbumLoading}
+                    color="danger"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Close
+                  </IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent>
+              <form onSubmit={createAblum} className="createAlbum_form">
                 <CirclePicker
+                  className="createAlbum__modal__colorpicker"
                   color={selectedColor}
                   onChangeComplete={(color: ColorResult, e: any) => {
                     setSelectedColor(color.hex);
                   }}
                 />
-              </IonItem>
 
-              <IonItem>
-                <IonLabel position="floating">Title</IonLabel>
-                <IonInput
-                  value={albumTitle}
-                  onIonChange={(e: any) => setAlbumTitle(e.detail.value)}
-                ></IonInput>
-              </IonItem>
+                <IonItem>
+                  <IonLabel position="floating">Title</IonLabel>
+                  <IonInput
+                    value={albumTitle}
+                    onIonChange={(e: any) => setAlbumTitle(e.detail.value)}
+                  ></IonInput>
+                </IonItem>
 
-              <IonItem>
-                <IonLabel position="floating">Description</IonLabel>
-                <IonInput
-                  multiple
-                  value={albumDescription}
-                  onIonChange={(e: any) => setAlbumDescription(e.detail.value)}
-                ></IonInput>
-              </IonItem>
+                <IonItem>
+                  <IonLabel position="floating">Description</IonLabel>
+                  <IonInput
+                    multiple
+                    value={albumDescription}
+                    onIonChange={(e: any) =>
+                      setAlbumDescription(e.detail.value)
+                    }
+                  ></IonInput>
+                </IonItem>
 
-              <IonButton type="submit" expand="full">
-                Create
-              </IonButton>
-            </form>
-          </IonContent>
-        </IonModal>
+                <IonButton
+                  disabled={addAlbumLoading}
+                  type="submit"
+                  expand="full"
+                >
+                  {addAlbumLoading ? <IonSpinner name="circles" /> : 'Create'}
+                </IonButton>
+              </form>
+            </IonContent>
+          </IonModal>
+        </div>
       </IonContent>
     </IonPage>
   );

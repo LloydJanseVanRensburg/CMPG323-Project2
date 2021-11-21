@@ -1,0 +1,22 @@
+.postCard {
+  width: 60%;
+  margin: auto;
+}
+
+.postCard__swiper {
+  background: #dfdfdf;
+}
+
+.postCard__swiper .swiper-wrapper {
+  align-items: center;
+}
+
+.postCard__swiper .swiper-wrapper .swiper-slide {
+  height: 100%;
+}
+
+.postCard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

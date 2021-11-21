@@ -20,11 +20,15 @@ import Register from './pages/RegisterPage/Register';
 const App: React.FC = () => {
   const { getUserLoading, getCurrentUserFromToken } = useContext(AuthContext);
 
+  const token = localStorage.authToken;
+
   useEffect(() => {
-    if (localStorage.getItem('authToken')) {
+    if (token) {
       getCurrentUserFromToken();
     }
-  }, [getCurrentUserFromToken]);
+
+    // eslint-disable-next-line
+  }, [token]);
 
   if (getUserLoading) {
     return <IonLoading isOpen />;

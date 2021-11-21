@@ -8,10 +8,3 @@ export const validateEmail = (email: string): boolean => {
   }
   return false;
 };
-
-export const checkPasswordMatch = (
-  password: string,
-  confirmPassword: string
-): boolean => {
-  return password === confirmPassword;
-};

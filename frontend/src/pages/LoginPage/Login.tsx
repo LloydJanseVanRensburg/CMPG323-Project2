@@ -42,7 +42,7 @@ const Login = () => {
   const emailInputRef = useRef<HTMLIonInputElement>(null);
   const passwordInputRef = useRef<HTMLIonInputElement>(null);
 
-  const loginHandler = () => {
+  const loginHandler = async () => {
     if (!validateEmail(email)) {
       emailInputRef.current?.setFocus();
       return setLoginUserError('Invalid Email');
@@ -58,7 +58,7 @@ const Login = () => {
       password,
     };
 
-    loginUser(data);
+    await loginUser(data);
   };
 
   if (isLoggedIn) {

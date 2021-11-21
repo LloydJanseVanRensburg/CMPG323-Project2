@@ -3,3 +3,39 @@
   padding: 0px;
   margin: 0px;
 }
+
+.content__container {
+  max-width: 900px;
+  width: 100%;
+  margin: auto;
+  min-height: 100%;
+  border-left: 1px solid #dfdfdf;
+  border-right: 1px solid #dfdfdf;
+  overflow: hidden;
+}
+
+@media only screen and (max-width: 900px) {
+  .content__container {
+    border: none;
+  }
+}
+
+.page__iontoolbartitle {
+  max-width: 900px;
+  margin: auto;
+}
+
+.page__Title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loading_spinner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

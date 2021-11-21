@@ -3,12 +3,26 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
   background-color: #fff;
   height: 100px;
+  max-height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 5px;
   margin: 2px;
+}
+
+.groupCard__imageContainer {
+  border-radius: 50%;
+  height: 75px;
+  width: 75px;
+}
+
+.groupCard img {
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .groupCard > p {

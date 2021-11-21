@@ -24,6 +24,8 @@ import Home from '../../pages/HomePage/Home';
 import { AuthContext } from '../../context/Auth/authContext';
 import AlbumPage from '../../pages/AlbumPage/AlbumPage';
 
+import './LoggedInApp.css';
+
 const LoggedInApp = () => {
   const { isLoggedIn } = useContext(AuthContext);
 
@@ -32,17 +34,17 @@ const LoggedInApp = () => {
   }
 
   return (
-    <IonTabs>
+    <IonTabs className="loggedInApp__iotabs">
       <IonRouterOutlet>
         <Route exact path="/my/account" component={Home} />
         <Route exact path="/my/groups" component={Groups} />
         <Route exact path="/my/groups/:groupId" component={Group} />
         <Route exact path="/my/albums/:albumId" component={AlbumPage} />
       </IonRouterOutlet>
-      <IonTabBar slot="bottom">
+      <IonTabBar slot="bottom" className="loggedInApp__tabBar">
         <IonTabButton tab="account" href="/my/account">
           <IonIcon icon={personOutline} />
-          <IonLabel>Account</IonLabel>
+          <IonLabel>Profile</IonLabel>
         </IonTabButton>
 
         <IonTabButton tab="groups" href="/my/groups">

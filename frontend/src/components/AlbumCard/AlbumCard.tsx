@@ -19,7 +19,7 @@ const AlbumCard: React.FC<Props> = ({ albumData }) => {
           backgroundColor: `${albumData.color}`,
         }}
       >
-        <h1 style={{ fontSize: '1rem' }}>{albumData.title[0].toUpperCase()}</h1>
+        {albumData.title[0].toUpperCase()}
       </div>
 
       <p>{albumData.title}</p>

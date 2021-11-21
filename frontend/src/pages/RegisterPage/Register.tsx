@@ -24,11 +24,7 @@ import {
 import { closeOutline } from 'ionicons/icons';
 
 // Helper Functions
-import {
-  validatePassword,
-  validateEmail,
-  checkPasswordMatch,
-} from '../../utils/functions';
+import { validatePassword, validateEmail } from '../../utils/functions';
 
 // Styling & assets
 import './Register.css';
@@ -46,7 +42,6 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   const registerHandler = async () => {
     if (!validateEmail(email)) {
@@ -55,10 +50,6 @@ const Register = () => {
 
     if (!validatePassword(password)) {
       return setRegisterUserError('Password should be min of 6 characters');
-    }
-
-    if (!checkPasswordMatch(password, confirmPassword)) {
-      return setRegisterUserError('Passwords does not match');
     }
 
     let data = {

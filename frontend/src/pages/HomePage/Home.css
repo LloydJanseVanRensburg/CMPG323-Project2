@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 2rem 0 0 0;
+  padding: 2rem 0 0 0;
 }
 
 .home__avatarpfp {
@@ -55,4 +55,45 @@
   padding: 1.5rem 0;
   z-index: 1;
   margin-top: -5px;
+}
+
+.home__modal__headertitle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.home__modal__inputs {
+  width: 80%;
+  margin: 3rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.home__modal__accountPfp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0 0 0;
+}
+
+.home__modal__avatarpfp {
+  position: relative;
+  height: 130px;
+  width: 130px;
+  border: 7px solid #47c8c0;
+  padding: 1rem;
+  border-radius: 50%;
+}
+
+.home__modal__editpfpBtn {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  padding: 2px;
+  background: #fff;
+  border-radius: 50%;
+  color: #333;
 }
