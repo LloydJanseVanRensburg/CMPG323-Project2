@@ -122,10 +122,11 @@ export class GroupControllers {
       }
 
       // Get Body Data and File
-      const { title, description } = req.body;
+      const { title, description, image } = req.body;
 
       if (title) foundGroup.title = title;
       if (description) foundGroup.description = description;
+      if (image) foundGroup.groupPicture = image;
 
       const updatedGroup = await foundGroup.save();
 

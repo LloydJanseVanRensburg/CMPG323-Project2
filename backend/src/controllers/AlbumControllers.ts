@@ -132,7 +132,7 @@ export class AlbumControllers {
       }
 
       const { albumId } = req.params;
-      const { title, description } = req.body;
+      const { title, description, color } = req.body;
       // @ts-ignore
       const { id: userId } = req.user;
 
@@ -152,6 +152,7 @@ export class AlbumControllers {
 
       if (title) foundAlbum.title = title;
       if (description) foundAlbum.description = description;
+      if (color) foundAlbum.color = color;
 
       const updatedAlbum = await foundAlbum.save();
 

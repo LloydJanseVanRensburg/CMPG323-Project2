@@ -57,7 +57,8 @@ export const validateUpdateAlbumBody = (body: any) => {
       objectLength(body) > 0 &&
       isDefined(body.title) &&
       isString(body.title)) ||
-    (isDefined(body.description) && isString(body.description))
+    (isDefined(body.description) && isString(body.description)) ||
+    (isDefined(body.color) && isString(body.color))
   );
 };
 
