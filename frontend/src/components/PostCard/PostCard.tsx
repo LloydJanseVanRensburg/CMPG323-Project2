@@ -1,4 +1,5 @@
 import {
+  IonAlert,
   IonButton,
   IonButtons,
   IonCard,
@@ -18,15 +19,17 @@ import 'swiper/swiper-bundle.min.css';
 import 'swiper/swiper.min.css';
 
 import './PostCard.css';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { ellipsisHorizontal, ellipsisVertical } from 'ionicons/icons';
-import axios from 'axios';
+import { AlbumContext } from '../../context/Album/albumContext';
 
 interface Props {
   postData: any;
 }
 
 const PostCard: React.FC<Props> = ({ postData }) => {
+  const { deletePost } = useContext(AlbumContext);
+
   const [showAlert1, setShowAlert1] = useState(false);
   const [popoverState, setShowPopover] = useState({
     showPopover: false,
@@ -37,26 +40,53 @@ const PostCard: React.FC<Props> = ({ postData }) => {
     console.log('Editing post...');
   };
 
-  const deletePostHandler = async () => {
-    try {
-      let axiosConfig = {
-        headers: {
-          Authorization: `Bearer ${localStorage.authToken}`,
-        },
-      };
-
-      const result = await axios.delete(
-        `${config.apiURL}/posts/${postData.id}`,
-        axiosConfig
-      );
-      console.log(result);
-    } catch (error: any) {
-      console.log(error);
-    }
-  };
-
   return (
     <IonCard className="postCard">
+      <IonCardHeader className="postCard__header">
+        <div>
+          <IonCardSubtitle>{postData.createdAt}</IonCardSubtitle>
+          <IonCardTitle>{postData.title}</IonCardTitle>
+        </div>
+
+        <IonButtons>
+          <IonButton
+            onClick={(e: any) => {
+              e.persist();
+              setShowPopover({ showPopover: true, event: e });
+            }}
+          >
+            <IonIcon
+              slot="icon-only"
+              ios={ellipsisHorizontal}
+              md={ellipsisVertical}
+            ></IonIcon>
+          </IonButton>
+        </IonButtons>
+
+        <IonPopover
+          cssClass="my-custom-class"
+          event={popoverState.event}
+          isOpen={popoverState.showPopover}
+          onDidDismiss={() =>
+            setShowPopover({ showPopover: false, event: undefined })
+          }
+        >
+          <IonList>
+            <IonItem onClick={editPostHandler}>
+              <IonLabel>Edit Post</IonLabel>
+            </IonItem>
+            <IonItem
+              onClick={() => {
+                setShowAlert1(true);
+                setShowPopover({ showPopover: false, event: undefined });
+              }}
+            >
+              <IonLabel>Delete Post</IonLabel>
+            </IonItem>
+          </IonList>
+        </IonPopover>
+      </IonCardHeader>
+
       <Swiper slidesPerView={1} className="postCard__swiper">
         {postData.files.map((file: any, idx: number) => (
           <SwiperSlide key={idx}>
@@ -64,14 +94,35 @@ const PostCard: React.FC<Props> = ({ postData }) => {
           </SwiperSlide>
         ))}
       </Swiper>
-      <IonCardHeader>
-        <IonCardSubtitle>Destination</IonCardSubtitle>
-        <IonCardTitle>Madison, WI</IonCardTitle>
-      </IonCardHeader>
-      <IonCardContent>
-        Founded in 1829 on an isthmus between Lake Monona and Lake Mendota,
-        Madison was named the capital of the Wisconsin Territory in 1836.
+
+      <IonCardContent className="postCard__content">
+        {postData.body}
       </IonCardContent>
+
+      <IonAlert
+        isOpen={showAlert1}
+        onDidDismiss={() => setShowAlert1(false)}
+        cssClass="my-custom-class"
+        header={'Confirm!'}
+        message={'Are you  sure you want to delete post'}
+        buttons={[
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: () => {
+              setShowPopover({ showPopover: false, event: undefined });
+            },
+          },
+          {
+            text: 'Okay',
+            handler: async () => {
+              await deletePost(postData.id);
+              setShowAlert1(false);
+            },
+          },
+        ]}
+      />
     </IonCard>
   );
 };

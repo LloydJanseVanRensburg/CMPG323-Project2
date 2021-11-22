@@ -21,6 +21,25 @@ export const groupReducer = (state: any, action: any) => {
         groupDataError: action.payload,
       };
 
+    // Edit Group
+    case actionTypes.EDIT_GROUP_LOADING:
+      return {
+        ...state,
+        editGroupLoading: true,
+      };
+    case actionTypes.EDIT_GROUP_SUCCESS:
+      return {
+        ...state,
+        editGroupLoading: false,
+        groupData: action.payload,
+      };
+    case actionTypes.EDIT_GROUP_FAIL:
+      return {
+        ...state,
+        editGroupLoading: false,
+        editGroupError: action.payload,
+      };
+
     // CLEAR GROUP DATA
     case actionTypes.CLEAR_GROUP_DATA:
       return {
@@ -72,6 +91,27 @@ export const groupReducer = (state: any, action: any) => {
         ...state,
         addAlbumLoading: false,
         addAlbumError: action.payload,
+      };
+
+    // DELETE ALBUM
+    case actionTypes.DELETE_ALBUM_LOADING:
+      return {
+        ...state,
+        deleteAlbumLoading: true,
+      };
+    case actionTypes.DELETE_ALBUM_SUCCESS:
+      return {
+        ...state,
+        deleteAlbumLoading: false,
+        albumData: state.albumData.filter(
+          (album: any) => album.id !== action.payload
+        ),
+      };
+    case actionTypes.DELETE_ALBUM_FAIL:
+      return {
+        ...state,
+        deleteAlbumLoading: false,
+        deleteAlbumError: action.payload,
       };
 
     // Default Return State

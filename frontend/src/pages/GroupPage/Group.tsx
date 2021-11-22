@@ -1,5 +1,5 @@
 // Core React
-import { useContext, useRef, useState, useEffect } from 'react';
+import { useContext, useRef, useState } from 'react';
 
 // React Router Dom
 import { useParams, useHistory } from 'react-router-dom';
@@ -47,25 +47,40 @@ import {
 } from 'ionicons/icons';
 import { GroupsContext } from '../../context/Groups/groupsContext';
 import AlbumCard from '../../components/AlbumCard/AlbumCard';
-import { AlbumContext } from '../../context/Album/albumContext';
+import axios from 'axios';
 
 const Group: React.FC = () => {
   const history = useHistory();
 
+  // SEARCH INPUT REF
+  const searchInput: any = useRef('');
+
+  // DELETE GROUP ALERT & POPOVER STATE
+  const [showAlert1, setShowAlert1] = useState(false);
   const [popoverState, setShowPopover] = useState({
     showPopover: false,
     event: undefined,
   });
 
-  const [showAlert1, setShowAlert1] = useState(false);
+  // CREATE ALBUM STATE
   const [showModal, setShowModal] = useState(false);
   const [albumTitle, setAlbumTitle] = useState('');
   const [albumDescription, setAlbumDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
-  const searchInput: any = useRef('');
 
+  // EDIT GROUP STATE
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [newGroupProfileImage, setNewGroupProfileImage] = useState(null);
+  const [newGroupTitle, setNewGroupTitle] = useState('');
+  const [newGroupDescription, setNewGroupDescription] = useState('');
+
+  // CURRENT GROUPID FROM URL
   const { groupId }: any = useParams();
 
+  // GLOBAL GROUPS CONTEXT
+  const { deleteGroup, deleteGroupLoading } = useContext(GroupsContext);
+
+  // GLOBAL GROUP CONTEXT
   const {
     getGroupData,
     groupData,
@@ -78,10 +93,11 @@ const Group: React.FC = () => {
     getGroupAlbumData,
     addAlbumLoading,
     albumData,
+    editGroup,
+    editGroupLoading,
   } = useContext(GroupContext);
 
-  const { deleteGroup, deleteGroupLoading } = useContext(GroupsContext);
-
+  // IONIC LIFECYCLE METHODS
   useIonViewDidEnter(async () => {
     await getGroupData(groupId);
     await getGroupAlbumData(groupId);
@@ -91,6 +107,7 @@ const Group: React.FC = () => {
     clearGroupData();
   });
 
+  // CUSTOM COMPONENT METHOD
   const createAblum = async (e: any) => {
     e.preventDefault();
 
@@ -120,7 +137,50 @@ const Group: React.FC = () => {
   };
 
   const editGroupHandler = () => {
-    console.log('Editing group...');
+    setNewGroupTitle(groupData?.title);
+    setNewGroupDescription(groupData?.description);
+    setShowEditModal(true);
+    setShowPopover({ showPopover: false, event: undefined });
+  };
+
+  const onGroupEditSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const newGroupData = {
+      title: newGroupTitle,
+      description: newGroupDescription,
+      image: newGroupProfileImage,
+    };
+
+    await editGroup(groupId, newGroupData);
+
+    setShowEditModal(false);
+    setNewGroupDescription('');
+    setNewGroupTitle('');
+    setNewGroupProfileImage(null);
+  };
+
+  const uploadFile = async (e: any) => {
+    const formData = new FormData();
+    formData.append('image', e.target.files[0]);
+
+    let axiosConfig = {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    };
+
+    try {
+      const result: any = await axios.post(
+        `${config.apiURL}/groups/upload`,
+        formData,
+        axiosConfig
+      );
+
+      setNewGroupProfileImage(result.data.data.imageKey);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -269,62 +329,124 @@ const Group: React.FC = () => {
               </IonGrid>
             </div>
           )}
+        </div>
 
-          <IonModal onDidDismiss={() => setShowModal(false)} isOpen={showModal}>
-            <IonHeader>
-              <IonToolbar>
-                <IonTitle className="page__Title">Create Album</IonTitle>
-                <IonButtons slot="end">
-                  <IonButton
-                    disabled={addAlbumLoading}
-                    color="danger"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Close
-                  </IonButton>
-                </IonButtons>
-              </IonToolbar>
-            </IonHeader>
-            <IonContent>
-              <form onSubmit={createAblum} className="createAlbum_form">
-                <CirclePicker
-                  className="createAlbum__modal__colorpicker"
-                  color={selectedColor}
-                  onChangeComplete={(color: ColorResult, e: any) => {
-                    setSelectedColor(color.hex);
-                  }}
-                />
-
-                <IonItem>
-                  <IonLabel position="floating">Title</IonLabel>
-                  <IonInput
-                    value={albumTitle}
-                    onIonChange={(e: any) => setAlbumTitle(e.detail.value)}
-                  ></IonInput>
-                </IonItem>
-
-                <IonItem>
-                  <IonLabel position="floating">Description</IonLabel>
-                  <IonInput
-                    multiple
-                    value={albumDescription}
-                    onIonChange={(e: any) =>
-                      setAlbumDescription(e.detail.value)
-                    }
-                  ></IonInput>
-                </IonItem>
-
+        <IonModal onDidDismiss={() => setShowModal(false)} isOpen={showModal}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle className="page__Title">Create Album</IonTitle>
+              <IonButtons slot="end">
                 <IonButton
                   disabled={addAlbumLoading}
-                  type="submit"
-                  expand="full"
+                  color="danger"
+                  onClick={() => setShowModal(false)}
                 >
-                  {addAlbumLoading ? <IonSpinner name="circles" /> : 'Create'}
+                  Close
                 </IonButton>
-              </form>
-            </IonContent>
-          </IonModal>
-        </div>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <form onSubmit={createAblum} className="createAlbum_form">
+              <CirclePicker
+                className="createAlbum__modal__colorpicker"
+                color={selectedColor}
+                onChangeComplete={(color: ColorResult, e: any) => {
+                  setSelectedColor(color.hex);
+                }}
+              />
+
+              <IonItem>
+                <IonLabel position="floating">Title</IonLabel>
+                <IonInput
+                  value={albumTitle}
+                  onIonChange={(e: any) => setAlbumTitle(e.detail.value)}
+                ></IonInput>
+              </IonItem>
+
+              <IonItem>
+                <IonLabel position="floating">Description</IonLabel>
+                <IonInput
+                  multiple
+                  value={albumDescription}
+                  onIonChange={(e: any) => setAlbumDescription(e.detail.value)}
+                ></IonInput>
+              </IonItem>
+
+              <IonButton disabled={addAlbumLoading} type="submit" expand="full">
+                {addAlbumLoading ? <IonSpinner name="circles" /> : 'Create'}
+              </IonButton>
+            </form>
+          </IonContent>
+        </IonModal>
+
+        <IonModal
+          onDidDismiss={() => setShowEditModal(false)}
+          isOpen={showEditModal}
+        >
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle className="page__Title">Edit Group</IonTitle>
+              <IonButtons slot="end">
+                <IonButton
+                  disabled={editGroupLoading}
+                  color="danger"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  Close
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <form onSubmit={onGroupEditSubmit} className="createGroup_form">
+              <input type="file" onChange={uploadFile} />
+
+              {newGroupProfileImage ? (
+                <div className="createGroup__modal__imageplaceholder">
+                  <img
+                    src={`${config.apiURL}/image/${newGroupProfileImage}`}
+                    alt="uploaded group profile"
+                  />
+                </div>
+              ) : (
+                <div className="createGroup__modal__imageplaceholder">
+                  <img
+                    src={`${config.apiURL}/image/${groupData?.groupPicture}`}
+                    alt="uploaded group profile"
+                  />
+                </div>
+              )}
+
+              <IonItem>
+                <IonLabel position="floating">Title</IonLabel>
+                <IonInput
+                  value={newGroupTitle}
+                  onIonChange={(e: any) => setNewGroupTitle(e.detail.value)}
+                ></IonInput>
+              </IonItem>
+
+              <IonItem>
+                <IonLabel position="floating">Description</IonLabel>
+                <IonInput
+                  multiple
+                  value={newGroupDescription}
+                  onIonChange={(e: any) =>
+                    setNewGroupDescription(e.detail.value)
+                  }
+                ></IonInput>
+              </IonItem>
+
+              <IonButton
+                disabled={editGroupLoading}
+                type="submit"
+                expand="full"
+              >
+                {editGroupLoading ? <IonSpinner name="circles" /> : 'Edit'}
+              </IonButton>
+            </form>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );

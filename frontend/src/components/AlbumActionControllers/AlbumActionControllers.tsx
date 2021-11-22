@@ -1,15 +1,32 @@
 import { IonItem, IonLabel, IonList } from '@ionic/react';
 
-const AlbumActionControllers = () => {
+interface Props {
+  showModal: any;
+  showPopover: any;
+  deleteAlbumHandler: any;
+  editAlbumHandler: any;
+}
+
+const AlbumActionControllers: React.FC<Props> = ({
+  showModal,
+  showPopover,
+  deleteAlbumHandler,
+  editAlbumHandler,
+}) => {
+  const onAddPostHandler = () => {
+    showModal(true);
+    showPopover({ showPopover: false, event: undefined });
+  };
+
   return (
     <IonList>
-      <IonItem>
+      <IonItem onClick={editAlbumHandler}>
         <IonLabel>Edit Album</IonLabel>
       </IonItem>
-      <IonItem>
+      <IonItem onClick={deleteAlbumHandler}>
         <IonLabel>Delete Album</IonLabel>
       </IonItem>
-      <IonItem>
+      <IonItem onClick={onAddPostHandler}>
         <IonLabel>Add Post</IonLabel>
       </IonItem>
     </IonList>

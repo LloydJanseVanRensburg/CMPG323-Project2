@@ -24,6 +24,22 @@ const AlbumState: React.FC = ({ children }) => {
     albumPosts: [],
     postsDataLoading: false,
     postsDataError: '',
+
+    // Edit album
+    editAlbumLoading: false,
+    editAlbumError: '',
+
+    // Delete album
+    deleteAlbumLoading: false,
+    deleteAlbumError: '',
+
+    // Add new post
+    addNewPostLoading: true,
+    addNewPostError: '',
+
+    // Delete post
+    deletePostLoading: false,
+    deletePostError: '',
   };
 
   const [state, dispatch] = useReducer(albumReducer, albumInitialReducerState);
@@ -122,6 +138,55 @@ const AlbumState: React.FC = ({ children }) => {
     }
   };
 
+  const deletePost = async (postId: string) => {
+    try {
+      dispatch({ type: actionTypes.DELETE_POST_LOADING });
+      let axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.authToken}`,
+        },
+      };
+
+      await axios.delete(`${config.apiURL}/posts/${postId}`, axiosConfig);
+
+      dispatch({ type: actionTypes.DELETE_POST_SUCCESS, payload: postId });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+
+      dispatch({ type: actionTypes.DELETE_POST_FAIL, payload: message });
+    }
+  };
+
+  const editAlbum = async (albumId: string, albumData: any) => {
+    try {
+      dispatch({ type: actionTypes.EDIT_ALBUM_LOADING });
+
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.authToken}`,
+        },
+      };
+
+      const result: any = await axios.put(
+        `${config.apiURL}/albums/${albumId}`,
+        albumData,
+        axiosConfig
+      );
+
+      const newAlbum = result.data.data;
+
+      dispatch({ type: actionTypes.EDIT_ALBUM_SUCCESS, payload: newAlbum });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+
+      dispatch({ type: actionTypes.EDIT_ALBUM_FAIL, payload: message });
+    }
+  };
+
   return (
     <AlbumContext.Provider
       value={{
@@ -131,11 +196,19 @@ const AlbumState: React.FC = ({ children }) => {
         albumPosts: state.albumPosts,
         postsDataLoading: state.postsDataLoading,
         postsDataError: state.postsDataError,
+        deletePostLoading: state.deletePostLoading,
+        deletePostError: state.deletePostError,
+        deleteAlbumLoading: state.deleteAlbumLoading,
+        deleteAlbumError: state.deleteAlbumError,
+        editAlbumLoading: state.editAlbumLoading,
+        editAlbumError: state.editAlbumError,
         getAlbumData,
         getAlbumPostData,
         clearAlbumData,
         searchPostsHandler,
         createNewPost,
+        deletePost,
+        editAlbum,
       }}
     >
       {children}

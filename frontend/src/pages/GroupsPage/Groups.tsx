@@ -1,5 +1,5 @@
 // Core React
-import { useEffect, useRef, useContext, useState } from 'react';
+import { useRef, useContext, useState } from 'react';
 
 // Ionic Components
 import {
@@ -7,7 +7,6 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -18,6 +17,7 @@ import {
   IonTitle,
   IonToast,
   IonToolbar,
+  useIonViewDidEnter,
 } from '@ionic/react';
 
 // Axios
@@ -27,7 +27,7 @@ import { config } from '../../constants/config';
 // Styling & Assets
 import { GroupsContext } from '../../context/Groups/groupsContext';
 import GroupsList from '../../components/GroupsList/GroupsList';
-import { closeOutline, addCircleOutline } from 'ionicons/icons';
+import { closeOutline } from 'ionicons/icons';
 import './Groups.css';
 
 const Groups = () => {
@@ -49,9 +49,9 @@ const Groups = () => {
 
   const searchInput: any = useRef('');
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     getUserGroupsData();
-  }, [getUserGroupsData]);
+  });
 
   const createGroupHandler = async (e: any) => {
     e.preventDefault();

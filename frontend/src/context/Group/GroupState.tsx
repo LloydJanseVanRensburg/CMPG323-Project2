@@ -12,11 +12,19 @@ const GroupState: React.FC = ({ children }) => {
     groupDataLoading: false,
     groupDataError: '',
 
+    // Edit group
+    editGroupLoading: false,
+    editGroupError: '',
+
     // Album State
     albumData: [],
     searchAlbums: [],
     albumDataLoading: false,
     albumDataError: '',
+
+    // Delete Album
+    deleteAlbumLoading: false,
+    deleteAlbumError: '',
 
     // Add Album state
     addAlbumLoading: false,
@@ -120,6 +128,56 @@ const GroupState: React.FC = ({ children }) => {
     }
   };
 
+  const deleteAlbum = async (albumId: string) => {
+    try {
+      dispatch({ type: actionTypes.DELETE_ALBUM_LOADING });
+
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.authToken}`,
+        },
+      };
+
+      await axios.delete(`${config.apiURL}/albums/${albumId}`, axiosConfig);
+
+      dispatch({ type: actionTypes.DELETE_ALBUM_SUCCESS, payload: albumId });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+
+      dispatch({ type: actionTypes.DELETE_ALBUM_FAIL, payload: message });
+    }
+  };
+
+  const editGroup = async (groupId: string, groupData: any) => {
+    try {
+      dispatch({ type: actionTypes.EDIT_GROUP_LOADING });
+
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.authToken}`,
+        },
+      };
+
+      const result: any = await axios.put(
+        `${config.apiURL}/groups/${groupId}`,
+        groupData,
+        axiosConfig
+      );
+
+      const newGroup = result.data.data;
+
+      dispatch({ type: actionTypes.EDIT_GROUP_SUCCESS, payload: newGroup });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+
+      dispatch({ type: actionTypes.EDIT_GROUP_FAIL, payload: message });
+    }
+  };
+
   return (
     <GroupContext.Provider
       value={{
@@ -132,11 +190,17 @@ const GroupState: React.FC = ({ children }) => {
         albumDataError: state.albumDataError,
         addAlbumLoading: state.addAlbumLoading,
         addAlbumError: state.addAlbumError,
+        deleteAlbumLoading: state.deleteAlbumLoading,
+        deleteAlbumError: state.deleteAlbumError,
+        editGroupLoading: state.editGroupLoading,
+        editGroupError: state.editGroupError,
+        editGroup,
         getGroupData,
         getGroupAlbumData,
         clearGroupData,
         searchAlbumsHandler,
         createNewAlbum,
+        deleteAlbum,
       }}
     >
       {children}

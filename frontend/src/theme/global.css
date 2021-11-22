@@ -9,8 +9,6 @@
   width: 100%;
   margin: auto;
   min-height: 100%;
-  border-left: 1px solid #dfdfdf;
-  border-right: 1px solid #dfdfdf;
   overflow: hidden;
 }
 
@@ -38,4 +36,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+ion-content {
+  --offset-bottom: auto !important;
+  --overflow: hidden;
+  overflow: auto;
 }

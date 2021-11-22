@@ -40,6 +40,65 @@ export const albumReducer = (state: any, action: any) => {
         postsDataError: action.payload,
       };
 
+    // EDIT ALBUM
+    case actionTypes.EDIT_ALBUM_LOADING:
+      return {
+        ...state,
+        editAlbumLoading: true,
+      };
+    case actionTypes.EDIT_ALBUM_SUCCESS:
+      return {
+        ...state,
+        editAlbumLoading: false,
+        currentAlbum: action.payload,
+      };
+    case actionTypes.EDIT_ALBUM_FAIL:
+      return {
+        ...state,
+        editAlbumLoading: false,
+        editAlbumError: action.payload,
+      };
+
+    // ADD NEW POST
+    case actionTypes.ADD_NEW_POST_LOADING:
+      return {
+        ...state,
+        addNewPostLoading: true,
+      };
+    case actionTypes.ADD_NEW_POST_SUCCESS:
+      return {
+        ...state,
+        addNewPostLoading: false,
+        albumPosts: [action.payload, ...state.albumPosts],
+      };
+    case actionTypes.ADD_NEW_POST_FAIL:
+      return {
+        ...state,
+        addNewPostLoading: false,
+        addNewPostError: action.payload,
+      };
+
+    // DELETE POST
+    case actionTypes.DELETE_POST_LOADING:
+      return {
+        ...state,
+        deletePostLoading: true,
+      };
+    case actionTypes.DELETE_POST_SUCCESS:
+      return {
+        ...state,
+        deletePostLoading: false,
+        albumPosts: state.albumPosts.filter(
+          (post: any) => post.id !== action.payload
+        ),
+      };
+    case actionTypes.DELETE_POST_FAIL:
+      return {
+        ...state,
+        deletePostLoading: false,
+        deletePostError: action.payload,
+      };
+
     case actionTypes.CLEAR_ALBUM_DATA:
       return {
         ...state,
