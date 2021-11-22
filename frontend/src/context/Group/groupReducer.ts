@@ -114,6 +114,34 @@ export const groupReducer = (state: any, action: any) => {
         deleteAlbumError: action.payload,
       };
 
+    // INVITE TO GROUP
+    case actionTypes.INVITE_TO_GROUP_LOADING:
+      return {
+        ...state,
+        inviteToGroupLoading: true,
+      };
+    case actionTypes.INVITE_TO_GROUP_SUCCESS:
+      return {
+        ...state,
+        inviteToGroupLoading: false,
+      };
+    case actionTypes.INVITE_TO_GROUP_FAIL:
+      return {
+        ...state,
+        inviteToGroupLoading: false,
+        inviteToGroupError: action.payload,
+      };
+
+    // SEARCH ALBUMS IN GROUP
+    case actionTypes.SEARCH_ALBUMS:
+      let search = state.albumData.filter((album: any) =>
+        album.title.toLowerCase().includes(action.payload.toLowerCase())
+      );
+      return {
+        ...state,
+        searchAlbums: search,
+      };
+
     // Default Return State
     default:
       return state;

@@ -22,6 +22,7 @@ const AlbumState: React.FC = ({ children }) => {
 
     // Load album posts
     albumPosts: [],
+    searchPosts: [],
     postsDataLoading: false,
     postsDataError: '',
 
@@ -34,7 +35,7 @@ const AlbumState: React.FC = ({ children }) => {
     deleteAlbumError: '',
 
     // Add new post
-    addNewPostLoading: true,
+    addNewPostLoading: false,
     addNewPostError: '',
 
     // Edit post
@@ -226,8 +227,11 @@ const AlbumState: React.FC = ({ children }) => {
         albumDataLoading: state.albumDataLoading,
         albumDataError: state.albumDataError,
         albumPosts: state.albumPosts,
+        searchPosts: state.searchPosts,
         postsDataLoading: state.postsDataLoading,
         postsDataError: state.postsDataError,
+        addNewPostLoading: state.addNewPostLoading,
+        addNewPostError: state.addNewPostError,
         deletePostLoading: state.deletePostLoading,
         deletePostError: state.deletePostError,
         deleteAlbumLoading: state.deleteAlbumLoading,

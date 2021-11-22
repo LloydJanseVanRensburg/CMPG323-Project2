@@ -495,6 +495,7 @@ const Group: React.FC = () => {
         </IonModal>
 
         <IonModal
+          backdropDismiss={!inviteToGroupLoading}
           onDidDismiss={() => setShowInviteModal(false)}
           isOpen={showInviteModal}
         >

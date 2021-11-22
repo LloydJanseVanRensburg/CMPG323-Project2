@@ -74,10 +74,13 @@ const AlbumPage: React.FC = () => {
     albumDataLoading,
     postsDataLoading,
     albumPosts,
+    searchPosts,
     createNewPost,
     deletePostLoading,
     editAlbum,
     editAlbumLoading,
+    addNewPostLoading,
+    searchPostsHandler,
   } = useContext(AlbumContext);
 
   // IONIC LIFECYCLE METHODS
@@ -89,9 +92,6 @@ const AlbumPage: React.FC = () => {
   useIonViewDidLeave(() => {
     clearAlbumData();
   });
-
-  // CUSTOM COMPONENT METHODS
-  const searchPostsHandler = () => {};
 
   const uploadFile = async (e: any) => {
     const formData = new FormData();
@@ -258,8 +258,8 @@ const AlbumPage: React.FC = () => {
               <div className="albumpage__postslist">
                 {postsDataLoading && <IonSpinner name="circles" />}
 
-                {!postsDataLoading && albumPosts.length > 0 ? (
-                  albumPosts.map((el: any) => (
+                {!postsDataLoading && searchPosts.length > 0 ? (
+                  searchPosts.map((el: any) => (
                     <PostCard key={el.id} postData={el} />
                   ))
                 ) : (
@@ -297,13 +297,17 @@ const AlbumPage: React.FC = () => {
           />
         </div>
 
-        <IonModal onDidDismiss={() => setShowModal(false)} isOpen={showModal}>
+        <IonModal
+          backdropDismiss={!addNewPostLoading}
+          onDidDismiss={() => setShowModal(false)}
+          isOpen={showModal}
+        >
           <IonHeader>
             <IonToolbar>
               <IonTitle className="page__Title">Create Post</IonTitle>
               <IonButtons slot="end">
                 <IonButton
-                  disabled={postsDataLoading}
+                  disabled={addNewPostLoading}
                   color="danger"
                   onClick={() => setShowModal(false)}
                 >
@@ -334,11 +338,11 @@ const AlbumPage: React.FC = () => {
               </IonItem>
 
               <IonButton
-                disabled={postsDataLoading}
+                disabled={addNewPostLoading}
                 type="submit"
                 expand="full"
               >
-                {postsDataLoading ? <IonSpinner name="circles" /> : 'Create'}
+                {addNewPostLoading ? <IonSpinner name="circles" /> : 'Create'}
               </IonButton>
             </form>
           </IonContent>

@@ -171,6 +171,7 @@ const PostCard: React.FC<Props> = ({ postData }) => {
       />
 
       <IonModal
+        backdropDismiss={!editPostLoading}
         onDidDismiss={() => setShowEditPostModal(false)}
         isOpen={showEditPostModal}
       >

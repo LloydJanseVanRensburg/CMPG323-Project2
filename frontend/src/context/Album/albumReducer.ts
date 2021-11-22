@@ -1,4 +1,4 @@
-import { start } from 'repl';
+import { returnUpBackOutline } from 'ionicons/icons';
 import * as actionTypes from './albumTypes';
 
 export const albumReducer = (state: any, action: any) => {
@@ -33,6 +33,7 @@ export const albumReducer = (state: any, action: any) => {
         ...state,
         postsDataLoading: false,
         albumPosts: action.payload,
+        searchPosts: action.payload,
       };
     case actionTypes.GET_ALBUM_POSTS_FAIL:
       return {
@@ -71,6 +72,7 @@ export const albumReducer = (state: any, action: any) => {
         ...state,
         addNewPostLoading: false,
         albumPosts: [action.payload, ...state.albumPosts],
+        searchPosts: [action.payload, ...state.searchPosts],
       };
     case actionTypes.ADD_NEW_POST_FAIL:
       return {
@@ -90,6 +92,13 @@ export const albumReducer = (state: any, action: any) => {
         ...state,
         editPostLoading: false,
         albumPosts: state.albumPosts.map((post: any) => {
+          if (post.id === action.payload.id) {
+            return action.payload;
+          }
+
+          return post;
+        }),
+        searchPosts: state.searchPosts.map((post: any) => {
           if (post.id === action.payload.id) {
             return action.payload;
           }
@@ -117,6 +126,9 @@ export const albumReducer = (state: any, action: any) => {
         albumPosts: state.albumPosts.filter(
           (post: any) => post.id !== action.payload
         ),
+        searchPosts: state.searchPosts.filter(
+          (post: any) => post.id !== action.payload
+        ),
       };
     case actionTypes.DELETE_POST_FAIL:
       return {
@@ -125,6 +137,7 @@ export const albumReducer = (state: any, action: any) => {
         deletePostError: action.payload,
       };
 
+    // CLEAR ALBUM DATA
     case actionTypes.CLEAR_ALBUM_DATA:
       return {
         ...state,
@@ -132,8 +145,20 @@ export const albumReducer = (state: any, action: any) => {
         albumDataLoading: false,
         albumDataError: '',
         albumPosts: [],
+        searchPosts: [],
         postsDataLoading: false,
         postsDataError: '',
+      };
+
+    // SEARCH POSTS IN ALBUM
+    case actionTypes.SEARCH_POSTS:
+      return {
+        ...state,
+        searchPosts: state.albumPosts.filter(
+          (post: any) =>
+            post.title.toLowerCase().includes(action.payload.toLowerCase()) ||
+            post.body.toLowerCase().includes(action.payload.toLowerCase())
+        ),
       };
 
     default:
