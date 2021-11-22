@@ -37,6 +37,10 @@ const AlbumState: React.FC = ({ children }) => {
     addNewPostLoading: true,
     addNewPostError: '',
 
+    // Edit post
+    editPostLoading: false,
+    editPostError: '',
+
     // Delete post
     deletePostLoading: false,
     deletePostError: '',
@@ -187,6 +191,34 @@ const AlbumState: React.FC = ({ children }) => {
     }
   };
 
+  const editPost = async (postId: string, postData: any) => {
+    try {
+      dispatch({ type: actionTypes.EDIT_POST_LOADING });
+
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.authToken}`,
+        },
+      };
+
+      const result: any = await axios.put(
+        `${config.apiURL}/posts/${postId}`,
+        postData,
+        axiosConfig
+      );
+
+      const newPost = result.data.data;
+
+      dispatch({ type: actionTypes.EDIT_POST_SUCCESS, payload: newPost });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+
+      dispatch({ type: actionTypes.EDIT_POST_FAIL, payload: message });
+    }
+  };
+
   return (
     <AlbumContext.Provider
       value={{
@@ -202,6 +234,8 @@ const AlbumState: React.FC = ({ children }) => {
         deleteAlbumError: state.deleteAlbumError,
         editAlbumLoading: state.editAlbumLoading,
         editAlbumError: state.editAlbumError,
+        editPostLoading: state.editPostLoading,
+        editPostError: state.editPostError,
         getAlbumData,
         getAlbumPostData,
         clearAlbumData,
@@ -209,6 +243,7 @@ const AlbumState: React.FC = ({ children }) => {
         createNewPost,
         deletePost,
         editAlbum,
+        editPost,
       }}
     >
       {children}

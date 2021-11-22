@@ -1,3 +1,4 @@
+import { start } from 'repl';
 import * as actionTypes from './albumTypes';
 
 export const albumReducer = (state: any, action: any) => {
@@ -76,6 +77,31 @@ export const albumReducer = (state: any, action: any) => {
         ...state,
         addNewPostLoading: false,
         addNewPostError: action.payload,
+      };
+
+    // EDIT POST
+    case actionTypes.EDIT_POST_LOADING:
+      return {
+        ...state,
+        editPostLoading: true,
+      };
+    case actionTypes.EDIT_POST_SUCCESS:
+      return {
+        ...state,
+        editPostLoading: false,
+        albumPosts: state.albumPosts.map((post: any) => {
+          if (post.id === action.payload.id) {
+            return action.payload;
+          }
+
+          return post;
+        }),
+      };
+    case actionTypes.EDIT_POST_FAIL:
+      return {
+        ...state,
+        editPostLoading: false,
+        editPostError: action.payload,
       };
 
     // DELETE POST

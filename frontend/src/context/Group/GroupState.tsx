@@ -29,6 +29,10 @@ const GroupState: React.FC = ({ children }) => {
     // Add Album state
     addAlbumLoading: false,
     addAlbumError: '',
+
+    // Invite To Group
+    inviteToGroupLoading: false,
+    inviteToGroupError: '',
   };
 
   const [state, dispatch] = useReducer(groupReducer, initialGroupState);
@@ -178,6 +182,32 @@ const GroupState: React.FC = ({ children }) => {
     }
   };
 
+  const inviteToGroup = async (groupId: string, inviteData: string[]) => {
+    try {
+      dispatch({ type: actionTypes.INVITE_TO_GROUP_LOADING });
+
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.authToken}`,
+        },
+      };
+
+      await axios.post(
+        `${config.apiURL}/groups/${groupId}/invite`,
+        inviteData,
+        axiosConfig
+      );
+
+      dispatch({ type: actionTypes.INVITE_TO_GROUP_SUCCESS });
+    } catch (error: any) {
+      let message = error.response
+        ? error.response.data.message
+        : 'Something went wrong please try again';
+
+      dispatch({ type: actionTypes.INVITE_TO_GROUP_FAIL, payload: message });
+    }
+  };
+
   return (
     <GroupContext.Provider
       value={{
@@ -194,6 +224,8 @@ const GroupState: React.FC = ({ children }) => {
         deleteAlbumError: state.deleteAlbumError,
         editGroupLoading: state.editGroupLoading,
         editGroupError: state.editGroupError,
+        inviteToGroupLoading: state.inviteToGroupLoading,
+        inviteToGroupError: state.inviteToGroupError,
         editGroup,
         getGroupData,
         getGroupAlbumData,
@@ -201,6 +233,7 @@ const GroupState: React.FC = ({ children }) => {
         searchAlbumsHandler,
         createNewAlbum,
         deleteAlbum,
+        inviteToGroup,
       }}
     >
       {children}

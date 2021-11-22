@@ -26,6 +26,7 @@ import { ellipsisHorizontal, ellipsisVertical } from 'ionicons/icons';
 import { useRef, useState, useContext } from 'react';
 import { CirclePicker, ColorResult } from 'react-color';
 import { useHistory, useParams } from 'react-router';
+import { Swiper, SwiperSlide } from 'swiper/swiper-react';
 import AlbumActionControllers from '../../components/AlbumActionControllers/AlbumActionControllers';
 import PostCard from '../../components/PostCard/PostCard';
 import { config } from '../../constants/config';
@@ -295,6 +296,7 @@ const AlbumPage: React.FC = () => {
             ]}
           />
         </div>
+
         <IonModal onDidDismiss={() => setShowModal(false)} isOpen={showModal}>
           <IonHeader>
             <IonToolbar>

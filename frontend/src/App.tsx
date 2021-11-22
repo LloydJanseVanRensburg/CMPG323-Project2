@@ -16,6 +16,7 @@ import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
 import LoggedInApp from './components/LoggedInApp/LoggedInApp';
 import Login from './pages/LoginPage/Login';
 import Register from './pages/RegisterPage/Register';
+import JoinGroupPage from './pages/JoiGroupPage/JoinGroupPage';
 
 const App: React.FC = () => {
   const { getUserLoading, getCurrentUserFromToken } = useContext(AuthContext);
@@ -43,6 +44,9 @@ const App: React.FC = () => {
           </Route>
           <Route exact path="/register">
             <Register />
+          </Route>
+          <Route exact path="/groups/:groupId/join">
+            <JoinGroupPage />
           </Route>
           <Route path="/my">
             <LoggedInApp />

@@ -24,3 +24,7 @@
 .postCard__content {
   padding: 1rem;
 }
+
+.postCard__editmodal__carousel {
+  width: 100%;
+}

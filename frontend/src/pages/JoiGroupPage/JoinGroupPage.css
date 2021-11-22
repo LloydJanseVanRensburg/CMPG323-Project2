@@ -1,0 +1,12 @@
+.joinGroupPage form {
+  background: #fff;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.joinGroupPage form h4 {
+  font-size: 3rem;
+}

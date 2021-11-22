@@ -48,6 +48,7 @@ import {
 import { GroupsContext } from '../../context/Groups/groupsContext';
 import AlbumCard from '../../components/AlbumCard/AlbumCard';
 import axios from 'axios';
+import { AuthContext } from '../../context/Auth/authContext';
 
 const Group: React.FC = () => {
   const history = useHistory();
@@ -74,8 +75,14 @@ const Group: React.FC = () => {
   const [newGroupTitle, setNewGroupTitle] = useState('');
   const [newGroupDescription, setNewGroupDescription] = useState('');
 
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteUsersList, setInviteUsersList] = useState('');
+
   // CURRENT GROUPID FROM URL
   const { groupId }: any = useParams();
+
+  // GLOBAL AUTH CONTENT
+  const { userData } = useContext(AuthContext);
 
   // GLOBAL GROUPS CONTEXT
   const { deleteGroup, deleteGroupLoading } = useContext(GroupsContext);
@@ -95,6 +102,8 @@ const Group: React.FC = () => {
     albumData,
     editGroup,
     editGroupLoading,
+    inviteToGroup,
+    inviteToGroupLoading,
   } = useContext(GroupContext);
 
   // IONIC LIFECYCLE METHODS
@@ -183,6 +192,30 @@ const Group: React.FC = () => {
     }
   };
 
+  const inviteToGroupHandler = () => {
+    setShowPopover({ showPopover: false, event: undefined });
+    setShowInviteModal(true);
+  };
+
+  const onInviteUserSubmitHandler = async (e: any) => {
+    e.preventDefault();
+
+    const inviteList = inviteUsersList.split(',');
+
+    const inviteData = {
+      emailInviteList: inviteList,
+    };
+
+    await inviteToGroup(groupId, inviteData);
+
+    setShowInviteModal(false);
+    setInviteUsersList('');
+  };
+
+  const leaveGroupHandler = () => {
+    console.log('Leaving Group');
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -216,17 +249,30 @@ const Group: React.FC = () => {
             }
           >
             <IonList>
-              <IonItem onClick={editGroupHandler}>
-                <IonLabel>Edit Group</IonLabel>
-              </IonItem>
-              <IonItem
-                onClick={() => {
-                  setShowAlert1(true);
-                  setShowPopover({ showPopover: false, event: undefined });
-                }}
-              >
-                <IonLabel>Delete Group</IonLabel>
-              </IonItem>
+              {userData?.id === groupData?.owner ? (
+                <>
+                  <IonItem onClick={editGroupHandler}>
+                    <IonLabel>Edit Group</IonLabel>
+                  </IonItem>
+
+                  <IonItem
+                    onClick={() => {
+                      setShowAlert1(true);
+                      setShowPopover({ showPopover: false, event: undefined });
+                    }}
+                  >
+                    <IonLabel>Delete Group</IonLabel>
+                  </IonItem>
+
+                  <IonItem onClick={inviteToGroupHandler}>
+                    <IonLabel>Invite To Group</IonLabel>
+                  </IonItem>
+                </>
+              ) : (
+                <IonItem onClick={leaveGroupHandler}>
+                  <IonLabel>Leave Group</IonLabel>
+                </IonItem>
+              )}
             </IonList>
           </IonPopover>
         </IonToolbar>
@@ -443,6 +489,52 @@ const Group: React.FC = () => {
                 expand="full"
               >
                 {editGroupLoading ? <IonSpinner name="circles" /> : 'Edit'}
+              </IonButton>
+            </form>
+          </IonContent>
+        </IonModal>
+
+        <IonModal
+          onDidDismiss={() => setShowInviteModal(false)}
+          isOpen={showInviteModal}
+        >
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle className="page__Title">Invite Users To Group</IonTitle>
+              <IonButtons slot="end">
+                <IonButton
+                  disabled={inviteToGroupLoading}
+                  color="danger"
+                  onClick={() => setShowInviteModal(false)}
+                >
+                  Close
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <form
+              onSubmit={onInviteUserSubmitHandler}
+              className="createAlbum_form"
+            >
+              <IonItem>
+                <IonLabel position="floating">Title</IonLabel>
+                <IonInput
+                  value={inviteUsersList}
+                  onIonChange={(e: any) => setInviteUsersList(e.detail.value)}
+                ></IonInput>
+              </IonItem>
+
+              <IonButton
+                disabled={inviteToGroupLoading}
+                type="submit"
+                expand="full"
+              >
+                {inviteToGroupLoading ? (
+                  <IonSpinner name="circles" />
+                ) : (
+                  'Invite'
+                )}
               </IonButton>
             </form>
           </IonContent>
