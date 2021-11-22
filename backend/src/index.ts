@@ -37,6 +37,7 @@ app.use(express.json());
 // App Routing Middleware
 app.post(
   '/api/v1/post/uploads',
+  cors({ origin: 'http://172.104.244.191:3000' }),
   AuthMiddleware.auth,
   upload.array('image'),
   PostControllers.uploadPostImages
