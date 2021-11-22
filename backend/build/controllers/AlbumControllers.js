@@ -106,7 +106,7 @@ class AlbumControllers {
                 return;
             }
             const { albumId } = req.params;
-            const { title, description } = req.body;
+            const { title, description, color } = req.body;
             // @ts-ignore
             const { id: userId } = req.user;
             // Check that album exists
@@ -124,6 +124,8 @@ class AlbumControllers {
                 foundAlbum.title = title;
             if (description)
                 foundAlbum.description = description;
+            if (color)
+                foundAlbum.color = color;
             const updatedAlbum = await foundAlbum.save();
             res.status(httpStatusCodes_1.httpStatusCode.CREATED).json({
                 success: true,

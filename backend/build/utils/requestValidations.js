@@ -49,7 +49,8 @@ const validateUpdateAlbumBody = (body) => {
         (0, exports.objectLength)(body) > 0 &&
         (0, exports.isDefined)(body.title) &&
         (0, exports.isString)(body.title)) ||
-        ((0, exports.isDefined)(body.description) && (0, exports.isString)(body.description)));
+        ((0, exports.isDefined)(body.description) && (0, exports.isString)(body.description)) ||
+        ((0, exports.isDefined)(body.color) && (0, exports.isString)(body.color)));
 };
 exports.validateUpdateAlbumBody = validateUpdateAlbumBody;
 const validateCreateAlbumBody = (body) => {

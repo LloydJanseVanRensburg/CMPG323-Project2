@@ -107,11 +107,13 @@ class GroupControllers {
                 return;
             }
             // Get Body Data and File
-            const { title, description } = req.body;
+            const { title, description, image } = req.body;
             if (title)
                 foundGroup.title = title;
             if (description)
                 foundGroup.description = description;
+            if (image)
+                foundGroup.groupPicture = image;
             const updatedGroup = await foundGroup.save();
             // Respond with created group info
             res.status(httpStatusCodes_1.httpStatusCode.CREATED).json({
