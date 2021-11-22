@@ -16,7 +16,10 @@ class PostControllers {
                 return;
             }
             const { albumId } = req.body;
-            const foundAlbumPosts = await db.post.findAll({ where: { albumId } });
+            const foundAlbumPosts = await db.post.findAll({
+                where: { albumId },
+                order: [['createdAt', 'DESC']],
+            });
             res.status(httpStatusCodes_1.httpStatusCode.OK).json({
                 success: true,
                 count: foundAlbumPosts.length,

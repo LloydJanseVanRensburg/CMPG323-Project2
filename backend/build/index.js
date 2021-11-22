@@ -33,7 +33,7 @@ app.use((0, cors_1.default)({ origin: '*' }));
 app.use((0, morgan_1.default)('dev'));
 app.use(express_1.default.json());
 // App Routing Middleware
-app.post('/api/v1/post/uploads', (0, cors_1.default)({ origin: 'http://172.104.244.191:3000' }), AuthMiddleware_1.AuthMiddleware.auth, FileUploadMiddleware_1.upload.array('image'), PostControllers_1.PostControllers.uploadPostImages);
+app.post('/api/v1/post/uploads', (0, cors_1.default)({ origin: ['http://172.104.244.191:3000', 'http://localhost:3000'] }), AuthMiddleware_1.AuthMiddleware.auth, FileUploadMiddleware_1.upload.array('image'), PostControllers_1.PostControllers.uploadPostImages);
 app.use('/api/v1/auth', authRoutes_1.default);
 app.use('/api/v1/users', userRoutes_1.default);
 app.use('/api/v1/groups', groupRoutes_1.default);
