@@ -110,7 +110,7 @@ const AlbumPage: React.FC = () => {
 
     try {
       const result: any = await axios.post(
-        `${config.apiURL}/posts/upload`,
+        `${config.apiURL}/post/uploads`,
         formData,
         axiosConfig
       );
