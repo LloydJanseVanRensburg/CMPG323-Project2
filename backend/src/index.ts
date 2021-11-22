@@ -21,6 +21,9 @@ import groupRoutes from './routes/groupRoutes';
 import albumRoutes from './routes/albumRoutes';
 import postRoutes from './routes/postRoutes';
 import imageRoutes from './routes/imageRoutes';
+import { AuthMiddleware } from './middleware/AuthMiddleware';
+import { PostControllers } from './controllers/PostControllers';
+import { upload } from './middleware/FileUploadMiddleware';
 //============================================================================================================
 
 // Init Express App
@@ -32,6 +35,12 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // App Routing Middleware
+app.post(
+  '/api/v1/post/uploads',
+  AuthMiddleware.auth,
+  upload.array('image'),
+  PostControllers.uploadPostImages
+);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/groups', groupRoutes);

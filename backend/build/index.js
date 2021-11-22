@@ -22,6 +22,9 @@ const groupRoutes_1 = __importDefault(require("./routes/groupRoutes"));
 const albumRoutes_1 = __importDefault(require("./routes/albumRoutes"));
 const postRoutes_1 = __importDefault(require("./routes/postRoutes"));
 const imageRoutes_1 = __importDefault(require("./routes/imageRoutes"));
+const AuthMiddleware_1 = require("./middleware/AuthMiddleware");
+const PostControllers_1 = require("./controllers/PostControllers");
+const FileUploadMiddleware_1 = require("./middleware/FileUploadMiddleware");
 //============================================================================================================
 // Init Express App
 const app = (0, express_1.default)();
@@ -30,6 +33,7 @@ app.use((0, cors_1.default)({ origin: '*' }));
 app.use((0, morgan_1.default)('dev'));
 app.use(express_1.default.json());
 // App Routing Middleware
+app.post('/api/v1/post/uploads', AuthMiddleware_1.AuthMiddleware.auth, FileUploadMiddleware_1.upload.array('image'), PostControllers_1.PostControllers.uploadPostImages);
 app.use('/api/v1/auth', authRoutes_1.default);
 app.use('/api/v1/users', userRoutes_1.default);
 app.use('/api/v1/groups', groupRoutes_1.default);
