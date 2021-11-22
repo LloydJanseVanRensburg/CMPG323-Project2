@@ -2,6 +2,7 @@ import express from 'express';
 import { PostControllers } from '../controllers/PostControllers';
 import { AuthMiddleware } from '../middleware/AuthMiddleware';
 import { upload } from '../middleware/FileUploadMiddleware';
+import cors from 'cors';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.post(
 // @access  -   Private
 router.post(
   '/upload',
+  cors(),
   AuthMiddleware.auth,
   upload.array('image'),
   PostControllers.uploadPostImages

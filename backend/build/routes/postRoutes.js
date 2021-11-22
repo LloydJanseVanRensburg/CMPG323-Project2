@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const PostControllers_1 = require("../controllers/PostControllers");
 const AuthMiddleware_1 = require("../middleware/AuthMiddleware");
 const FileUploadMiddleware_1 = require("../middleware/FileUploadMiddleware");
+const cors_1 = __importDefault(require("cors"));
 const router = express_1.default.Router();
 // @route   -   /api/v1/posts/album-posts
 // @desc    -   GET fetch all posts
@@ -15,7 +16,7 @@ router.post('/album-posts', AuthMiddleware_1.AuthMiddleware.auth, PostController
 // @route   -   /api/v1/posts/upload
 // @desc    -   POST upload post files
 // @access  -   Private
-router.post('/upload', AuthMiddleware_1.AuthMiddleware.auth, FileUploadMiddleware_1.upload.array('image'), PostControllers_1.PostControllers.uploadPostImages);
+router.post('/upload', (0, cors_1.default)(), AuthMiddleware_1.AuthMiddleware.auth, FileUploadMiddleware_1.upload.array('image'), PostControllers_1.PostControllers.uploadPostImages);
 // @route   -   /api/v1/posts
 // @desc    -   GET fetch all posts
 // @access  -   Private
