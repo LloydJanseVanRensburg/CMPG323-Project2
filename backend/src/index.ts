@@ -27,7 +27,7 @@ import imageRoutes from './routes/imageRoutes';
 const app = express();
 
 // Set up basic middlewares
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(morgan('dev'));
 app.use(express.json());
 

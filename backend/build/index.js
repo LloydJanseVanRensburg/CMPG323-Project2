@@ -26,7 +26,7 @@ const imageRoutes_1 = __importDefault(require("./routes/imageRoutes"));
 // Init Express App
 const app = (0, express_1.default)();
 // Set up basic middlewares
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({ origin: '*' }));
 app.use((0, morgan_1.default)('dev'));
 app.use(express_1.default.json());
 // App Routing Middleware
