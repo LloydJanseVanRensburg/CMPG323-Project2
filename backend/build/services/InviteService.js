@@ -46,7 +46,7 @@ class InviteService {
                     cleanEmailList.push(inviteObj);
                 }
                 cleanEmailList.forEach(async (invite) => {
-                    // Generate Custom Join URL and Message example <domain>/api/v1/groups/:groupId/join?email=&groupId=&token=
+                    // Generate Custom Join URL and Message example <domain>/groups/:groupId/join?email=&groupId=&token=
                     let token = crypto_1.default.randomBytes(20).toString('hex');
                     let baseURL = process.env.FRONTEND_URL;
                     let customURL = `groups/${foundGroup.id}/join?email=${invite.email}&token=${token}`;

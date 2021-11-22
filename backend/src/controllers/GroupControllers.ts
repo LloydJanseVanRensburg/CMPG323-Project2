@@ -14,7 +14,22 @@ const db = require('../models');
 export class GroupControllers {
   static async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const groups = await db.group.findAll();
+      // @ts-ignore
+      const { id: userId } = req.user;
+
+      const groupsFollowed = await db.groupmember.findAll({
+        where: { memberId: userId },
+      });
+
+      const formattedFollowed = groupsFollowed.map((group: any) => {
+        return group.groupId;
+      });
+
+      const groups = await db.group.findAll({
+        where: {
+          id: formattedFollowed,
+        },
+      });
 
       // Respond to client with all groups info
       res.status(httpStatusCode.OK).json({
